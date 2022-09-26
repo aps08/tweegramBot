@@ -43,6 +43,4 @@ class RecieveMessage:
 
 
 if __name__ == "__main__":
-    api_id = "9439839"
-    api_hash = "7d738c894a2a3ea1e6835a84c7220b53"
-    group_name = "coder_jain_dev_support"
+
