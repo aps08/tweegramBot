@@ -1,3 +1,8 @@
+"""
+Module is responsible for converting 
+telegram messages to twitter tweets.
+"""
+
 import os
 import shutil
 from datetime import datetime, timedelta, timezone
@@ -15,12 +20,12 @@ class TelegramToTweet:
     tweets.
     """
 
-    def __get_messages(self) -> dict:
+    def __get_messages(self) -> list:
         """
         Downloads media and texts from telegram group
         for past 1 day.
         """
-        items = dict()
+        items = []
         date_time = datetime.now(timezone.utc) - timedelta(days=2.0)
         try:
             with TelegramClient("aps08", config.TEL_API_ID, config.TEL_API_HASH) as client:
@@ -35,7 +40,7 @@ class TelegramToTweet:
                             temp_dict["message"] = message.text
                         else:
                             temp_dict["message"] = message.text
-                        items[media_count] = temp_dict
+                        items.append(temp_dict)
                         media_count += 1
         except Exception as down_err:
             raise down_err
@@ -66,14 +71,13 @@ class TelegramToTweet:
                 if message and media_path:
                     media = twitter_api.media_upload(media_path)
                     res = client.create_tweet(text=message, media_ids=[media.media_id])
-                    if res.ok:
-                        print("successfuly tweeted.")
                 elif message and not media_path:
                     res = client.create_tweet(text=message)
-                    if res.ok:
-                        print("successfuly tweeted.")
-                elif not message and not media_path:
-                    print("something went wrong")
+                elif not message and media_path:
+                    media = twitter_api.media_upload(media_path)
+                    res = client.create_tweet(text="Opportunity", media_ids=[media.media_id])
+                else:
+                    print("something is not right.")
                     break
         except Exception as send_err:
             raise send_err
