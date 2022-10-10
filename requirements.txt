@@ -1,0 +1,2 @@
+Telethon==1.25.1
+tweepy==4.10.1

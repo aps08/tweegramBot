@@ -90,6 +90,7 @@ class TelegramToTweet:
             current_dir = os.getcwd()
             path = os.path.join(current_dir, "src\\media")
             shutil.rmtree(path)
+            os.remove("aps08.session")
         except Exception as del_err:
             raise del_err
 
@@ -103,8 +104,6 @@ class TelegramToTweet:
             self.__delete_media_dir()
         except Exception as start_err:
             raise start_err
-        finally:
-            print("logger")
 
 
 if __name__ == "__main__":

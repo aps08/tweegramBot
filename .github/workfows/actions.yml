@@ -1,1 +1,41 @@
 name: teltotwt
+
+# on:
+#   schedule:
+#     - cron: "30 18 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: execution
+        env:
+          TEL_API_ID: ${{ secrets.TEL_API_ID }}
+          TEL_API_HASH: ${{ secrets.TEL_API_HASH }}
+          TEL_GROUP: ${{ secrets.TEL_GROUP }}
+          TWT_API_KEY: ${{ secrets.TWT_API_KEY }}
+          TWT_API_SECRET: ${{ secrets.TWT_API_SECRET }}
+          TWT_ACCESS_TOKEN: ${{ secrets.TWT_ACCESS_TOKEN }}
+          TWT_ACCESS_TOKEN_SECRET: ${{ secrets.TWT_ACCESS_TOKEN_SECRET }}
+        run: python src/main.py
+
+      - name: auto commit
+        run: |
+          git config --local user.email "${{ secrets.EMAIL }}"
+          git config --local user.name "aps08"
+          git add .
+          git commit -m "Commit from Github Actions"
+          git push -f origin main
