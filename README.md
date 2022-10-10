@@ -1,12 +1,12 @@
-# pywisher
+# teltotwt
 
-pywisher is a python scripts, which uses gmail to read records and send birthday wishes to all your friends, it's scheduled to run every day at **```00:01 IST```** using github actions.
+teltotwt is a small script, which helps you to convert telegram messages to twitter tweets.
 
 
 ## Made with
 ![code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)
+![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)
 ![Github Action](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
 
 
