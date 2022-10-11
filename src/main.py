@@ -26,7 +26,7 @@ class TelegramToTweet:
         for past 1 day.
         """
         items = []
-        date_time = datetime.now(timezone.utc) - timedelta(days=2.0)
+        date_time = datetime.now(timezone.utc) - timedelta(days=1.0)
         try:
             with TelegramClient("aps08", config.TEL_API_ID, config.TEL_API_HASH) as client:
                 media_count = 0
