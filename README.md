@@ -6,7 +6,7 @@ teltotwt is a small script, which helps you to convert telegram messages to twit
 1. Get your API secrets for telegram from [here](https://my.telegram.org/apps).
 2. Get your API secrets for twitter from [here](https://developer.twitter.com/en/portal/dashboard).
 3. Fork this reposiotry, and uncomment the commented lines in [this](https://github.com/aps08/teltotwt/blob/main/.github/workfows/actions.yml) file.
-4. Create secrets for this repository. Total 8 secret key-value pair need to be created, 7 of them would be the API secrets and one would be your github email.
+4. Create secrets for this repository. Total 8 secret key-value pair need to be created, 6 of them would be the API secrets, 1 would be telegram group/user name and 1 would be your github email. You can see the keys and instructions in [this](https://github.com/aps08/teltotwt/blob/main/src/config.py) file.
 5. Once the above steps are completed, this repo will run everyday at mid-night, and convert all your telegram messages into tweets.
 
 ## Made with
