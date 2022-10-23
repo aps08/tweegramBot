@@ -31,7 +31,7 @@ class TelegramToTweet:
             with TelegramClient("aps08", config.TEL_API_ID, config.TEL_API_HASH) as client:
                 media_count = 0
                 for message in client.iter_messages(config.TEL_GROUP):
-                    export_path = f"src\\media\\{media_count}"
+                    export_path = f"src/media/{media_count}"
                     if message.date > date_time:
                         temp_dict = {}
                         if message.photo:
@@ -88,9 +88,8 @@ class TelegramToTweet:
         """
         try:
             current_dir = os.getcwd()
-            path = os.path.join(current_dir, "src\\media")
+            path = os.path.join(current_dir, "src/media")
             shutil.rmtree(path)
-            os.remove("aps08.session")
         except Exception as del_err:
             raise del_err
 
