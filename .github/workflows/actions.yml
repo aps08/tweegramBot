@@ -1,8 +1,9 @@
 name: teltotwt
 
 on:
-  schedule:
-    - cron: "0 5 31 2 *"
+  push:
+    branches:
+      - main
 
 jobs:
   build:
