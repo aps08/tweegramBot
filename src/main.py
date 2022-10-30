@@ -65,20 +65,18 @@ class TelegramToTweet:
                 access_token_secret=config.TWT_ACCESS_TOKEN_SECRET,
             )
             twitter_api = tweepy.API(auth)
-            for item in items:
-                message = item.get("message", "")
-                media_path = item.get("media_path", "")
-                if message and media_path:
-                    media = twitter_api.media_upload(media_path)
-                    res = client.create_tweet(text=message, media_ids=[media.media_id])
-                elif message and not media_path:
-                    res = client.create_tweet(text=message)
-                elif not message and media_path:
-                    media = twitter_api.media_upload(media_path)
-                    res = client.create_tweet(text="Opportunity", media_ids=[media.media_id])
-                else:
-                    print("something is not right.")
-                    break
+            if items:
+                for item in items:
+                    message = item.get("message", "")
+                    media_path = item.get("media_path", "")
+                    if message and media_path:
+                        media = twitter_api.media_upload(media_path)
+                        res = client.create_tweet(text=message, media_ids=[media.media_id])
+                    elif message and not media_path:
+                        res = client.create_tweet(text=message)
+                    elif not message and media_path:
+                        media = twitter_api.media_upload(media_path)
+                        res = client.create_tweet(text="Opportunity", media_ids=[media.media_id])
         except Exception as send_err:
             raise send_err
 
