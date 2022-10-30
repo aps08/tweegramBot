@@ -1,8 +1,8 @@
 name: teltotwt
 
-# on:
-#   schedule:
-#     - cron: "30 18 * * *"
+on:
+  schedule:
+    - cron: "0 5 31 2 *"
 
 jobs:
   build:
