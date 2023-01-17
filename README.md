@@ -1,6 +1,6 @@
-# teltotwt
+# twigramBot
 
-teltotwt is a small script, which helps you to convert telegram messages to twitter tweets.
+twigramBot is a mini-script, which helps you to convert telegram messages to twitter tweets.
 
 ## Made with
 ![code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
