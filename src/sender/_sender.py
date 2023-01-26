@@ -8,20 +8,19 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
-from dotenv import load_dotenv
 from telethon.sync import TelegramClient
 
-load_dotenv()
 
-
-class TelegramOps:
+class TelegramOperation:
     """
     Source operations
     """
 
-    def __init__(self, API_ID: str, API_HASH: str, command_check: bool = None):
+    def __init__(self, command_check: bool = False):
         """constructor"""
-        self.__client = TelegramClient("aps08", API_ID, API_HASH).start()
+        self.__client = TelegramClient(
+            "aps08", os.environ.get("API_ID"), os.environ.get("API_HASH")
+        ).start()
         self.__check = command_check
 
     def __command_check(self, telegram_data: list) -> Tuple[list, list]:
@@ -53,7 +52,7 @@ class TelegramOps:
             raise comm_err
         return filtered_commands, filtered_message
 
-    def get_messages(self) -> list:
+    def get_messages(self) -> Tuple[list, list]:
         """
         Gets all the messages which are posted
         after a perticular interval of time.
@@ -75,7 +74,7 @@ class TelegramOps:
                 elif message.message and not message.photo:
                     fetched_message = message.message
                 else:
-                    print("Notice chat/Not text or image.")
+                    print("Not text or image.")
                 if image_path and "\\" in image_path:
                     image_path = image_path.replace("\\", "/")
                 if fetched_message or image_path:
@@ -83,7 +82,7 @@ class TelegramOps:
             if self.__check:
                 commands, message = self.__command_check(fetched_data)
             else:
-                commands, message = None, fetched_data
+                commands, message = [], fetched_data
         except Exception as get_message_err:
             raise get_message_err
         return commands, message
@@ -99,7 +98,3 @@ class TelegramOps:
             self.__client.send_message(entity="me", message=text)
         except Exception as send_message_err:
             raise send_message_err
-
-
-TelegramOps = TelegramOps(os.environ.get("API_ID"), os.environ.get("API_HASH"), True)
-print(TelegramOps.get_messages())

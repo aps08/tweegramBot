@@ -7,10 +7,9 @@ import os
 import shutil
 from datetime import datetime, timedelta, timezone
 
+import config
 import tweepy
 from telethon.sync import TelegramClient
-
-import config
 
 
 class TelegramToTweet:
@@ -106,3 +105,14 @@ class TelegramToTweet:
 if __name__ == "__main__":
     TelegramToTweet = TelegramToTweet()
     TelegramToTweet.start()
+
+    # def __delete_media_dir(self) -> None:
+    #     """
+    #     Deletes media directory after use.
+    #     """
+    #     try:
+    #         current_dir = os.getcwd()
+    #         path = os.path.join(current_dir, "src/media")
+    #         shutil.rmtree(path)
+    #     except Exception as del_err:
+    #         raise del_err
