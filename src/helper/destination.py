@@ -1,6 +1,11 @@
 """
 All twitter operations are performed here.
 """
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class TwitterOps:
@@ -35,3 +40,24 @@ class TwitterOps:
 
     def tweet(self) -> None:
         pass
+
+
+import tweepy
+
+client = tweepy.Client(
+    consumer_key=os.environ.get("API_ID"),
+    consumer_secret=os.environ.get("API_SECRET"),
+    access_token=os.environ.get("ACCESS_TOKEN"),
+    access_token_secret=os.environ.get("ACCESS_TOKEN_SECRET"),
+)
+auth = tweepy.OAuthHandler(
+    consumer_key=os.environ.get("API_ID"),
+    consumer_secret=os.environ.get("API_SECRET"),
+    access_token=os.environ.get("ACCESS_TOKEN"),
+    access_token_secret=os.environ.get("ACCESS_TOKEN_SECRET"),
+)
+# twitter_api = tweepy.API(auth)
+# data = twitter_api.update_status("bot")
+data = client.get_all_tweets_count(query="covid")
+
+print(data)
