@@ -3,9 +3,12 @@ All twitter operations are performed here
 without command features.
 """
 import os
+import re
+import shutil
 
 import tweepy
 from dotenv import load_dotenv
+from validator_collection import checkers
 
 from receiver._access import Creator
 
@@ -22,14 +25,16 @@ class TwitterOperations(Creator):
         Creator.__init__(self)
         self.__link_fc = link_fc
 
-    def __reply_with_link(self):
+    def remove_media(self) -> None:
         """
-        reply with link in first comment
+        Fully remove the media folder.
         """
         try:
-            pass
-        except Exception as reply_lfc_err:
-            raise reply_lfc_err
+            current_dir = os.getcwd()
+            path = os.path.join(current_dir, "media")
+            shutil.rmtree(path)
+        except Exception as del_err:
+            raise del_err
 
     def convert_to_tweet(self, items: list) -> None:
         """
@@ -42,12 +47,24 @@ class TwitterOperations(Creator):
             for item in items:
                 message, image = item["message"], item["image"]
                 if message and image:
-                    media = oauth_api.media_upload(image)
-                    res = client.create_tweet(text=message, media_ids=[media.media_id])
+                    if self.__link_fc:
+                        valid = checkers.is_url(message)
+                        if valid:
+                            media = oauth_api.media_upload(image)
+                            # message if empty, here you can define some message for the image getting uploaded
+                            res = client.create_tweet(text="", media_ids=[media.media_id])
+                            id = list(res)[0]["id"]
+                            res = client.create_tweet(text=message, in_reply_to_tweet_id=id)
+                        else:
+                            ValueError("Only pass URL in message, when __link_fc is True")
+                    else:
+                        media = oauth_api.media_upload(image)
+                        res = client.create_tweet(text=message, media_ids=[media.media_id])
                 elif message and not image:
                     res = client.create_tweet(text=message)
                 elif image and not message:
                     media = oauth_api.media_upload(image)
                     res = client.create_tweet(text=message, media_ids=[media.media_id])
+            self.remove_media()
         except Exception as send_tweet_err:
             raise send_tweet_err
