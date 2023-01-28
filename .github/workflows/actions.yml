@@ -25,19 +25,19 @@ jobs:
 
       - name: execution
         env:
-          TEL_API_ID: ${{ secrets.TEL_API_ID }}
-          TEL_API_HASH: ${{ secrets.TEL_API_HASH }}
-          TEL_GROUP: ${{ secrets.TEL_GROUP }}
-          TWT_API_KEY: ${{ secrets.TWT_API_KEY }}
-          TWT_API_SECRET: ${{ secrets.TWT_API_SECRET }}
-          TWT_ACCESS_TOKEN: ${{ secrets.TWT_ACCESS_TOKEN }}
-          TWT_ACCESS_TOKEN_SECRET: ${{ secrets.TWT_ACCESS_TOKEN_SECRET }}
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          CHANNEL: ${{ secrets.CHANNEL }}
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         run: python src/main.py
 
       - name: auto commit
         run: |
-          git config --local user.email "${{ secrets.EMAIL }}"
+          git config --local user.email "aps08@users.noreply.github.com"
           git config --local user.name "aps08"
           git add .
-          git commit -m "Commit from Github Actions"
-          git push -f origin main
+          git commit -am "Automated Commit"
+          git push

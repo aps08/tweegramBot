@@ -25,7 +25,7 @@ class TwitterOperations(Creator):
         Creator.__init__(self)
         self.__link_fc = link_fc
 
-    def remove_media(self) -> None:
+    def __remove_media(self) -> None:
         """
         Fully remove the media folder.
         """
@@ -51,7 +51,8 @@ class TwitterOperations(Creator):
                         valid = checkers.is_url(message)
                         if valid:
                             media = oauth_api.media_upload(image)
-                            # message if empty, here you can define some message for the image getting uploaded
+                            # Here you can provide some caption to the image or any message according to your use case.
+                            message = ""
                             res = client.create_tweet(text="", media_ids=[media.media_id])
                             id = list(res)[0]["id"]
                             res = client.create_tweet(text=message, in_reply_to_tweet_id=id)
@@ -64,7 +65,8 @@ class TwitterOperations(Creator):
                     res = client.create_tweet(text=message)
                 elif image and not message:
                     media = oauth_api.media_upload(image)
+                    # Here you can provide some caption to the image or any message according to your use case.
                     res = client.create_tweet(text=message, media_ids=[media.media_id])
-            self.remove_media()
+            self.__remove_media()
         except Exception as send_tweet_err:
             raise send_tweet_err
