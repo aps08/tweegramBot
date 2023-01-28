@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 .env
+aps08.session
 **/*.jpg
 # Distribution / packaging
 .Python
