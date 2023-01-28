@@ -2,9 +2,11 @@
 All twitter operations are performed here
 without command features.
 """
+import json
 import os
 import re
 import shutil
+from datetime import datetime
 
 import tweepy
 from dotenv import load_dotenv
@@ -24,6 +26,8 @@ class TwitterOperations(Creator):
         """constructor"""
         Creator.__init__(self)
         self.__link_fc = link_fc
+        self.__client = self.get_client()
+        self.__oauth_api = self.get_oauth()
 
     def __remove_media(self) -> None:
         """
@@ -32,7 +36,8 @@ class TwitterOperations(Creator):
         try:
             current_dir = os.getcwd()
             path = os.path.join(current_dir, "media")
-            shutil.rmtree(path)
+            if os.path.exists(path):
+                shutil.rmtree(path)
         except Exception as del_err:
             raise del_err
 
@@ -42,31 +47,58 @@ class TwitterOperations(Creator):
         them into tweet.
         """
         try:
-            client = self.get_client()
-            oauth_api = self.get_oauth()
             for item in items:
                 message, image = item["message"], item["image"]
                 if message and image:
                     if self.__link_fc:
                         valid = checkers.is_url(message)
                         if valid:
-                            media = oauth_api.media_upload(image)
+                            media = self.__oauth_api.media_upload(image)
                             # Here you can provide some caption to the image or any message according to your use case.
                             message = ""
-                            res = client.create_tweet(text="", media_ids=[media.media_id])
+                            res = self.__client.create_tweet(text="", media_ids=[media.media_id])
                             id = list(res)[0]["id"]
-                            res = client.create_tweet(text=message, in_reply_to_tweet_id=id)
+                            res = self.__client.create_tweet(text=message, in_reply_to_tweet_id=id)
                         else:
                             ValueError("Only pass URL in message, when __link_fc is True")
                     else:
-                        media = oauth_api.media_upload(image)
-                        res = client.create_tweet(text=message, media_ids=[media.media_id])
+                        media = self.__oauth_api.media_upload(image)
+                        res = self.__client.create_tweet(text=message, media_ids=[media.media_id])
                 elif message and not image:
-                    res = client.create_tweet(text=message)
+                    res = self.__client.create_tweet(text=message)
                 elif image and not message:
-                    media = oauth_api.media_upload(image)
+                    media = self.__oauth_api.media_upload(image)
                     # Here you can provide some caption to the image or any message according to your use case.
-                    res = client.create_tweet(text=message, media_ids=[media.media_id])
+                    res = self.__client.create_tweet(text=message, media_ids=[media.media_id])
             self.__remove_media()
         except Exception as send_tweet_err:
             raise send_tweet_err
+
+    def user_info(self, user_name: str) -> int:
+        """
+        Checks if user_name exists in twitter or not.
+        argument:
+            user_name: user to be checked for
+        """
+        try:
+            user_data = self.__client.get_user(username=user_name)
+            user_data = dict(user_data.data)
+            id = user_data.get("id", None)
+        except Exception as user_err:
+            # self.__oauth_api.get_user(user_name=user_name)
+            raise user_err
+        return id
+
+    def get_tweets(self, user_id: int):
+        current_timestamp = datetime.now().strftime("%Y%d%m_%H%M%S_%f")
+        tweets_data = self.__client.get_users_mentions(
+            id=user_id, max_results=100, start_time="2023-01-03T18:17:44Z"
+        )
+        i = 0
+        for item in tweets_data.data:
+            i += 1
+            print(i)
+            print(dict(item))
+
+    def send_dm(self):
+        self.__oauth_api.send_direct_message(recipient_id=66954504, text="Bot DM")
