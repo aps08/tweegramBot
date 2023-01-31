@@ -7,8 +7,9 @@ __pycache__/
 *.so
 .env
 aps08.session
-*.txt
+note.txt
 **/*.jpg
+*.json
 # Distribution / packaging
 .Python
 build/
