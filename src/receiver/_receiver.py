@@ -20,6 +20,8 @@ load_dotenv()
 class TwitterOperations(Creator):
     """
     Destination operation.
+    link_fc (bool): default value False, change it to true,
+                    in order to add links in first comment.
     """
 
     def __init__(self, link_fc: bool = False):
@@ -29,7 +31,7 @@ class TwitterOperations(Creator):
         self.__client = self.get_client()
         self.__oauth_api = self.get_oauth()
 
-    def __remove_media(self) -> None:
+    def remove_media(self) -> None:
         """
         Fully remove the media folder.
         """
@@ -41,7 +43,7 @@ class TwitterOperations(Creator):
         except Exception as del_err:
             raise del_err
 
-    def convert_to_tweet(self, items: list) -> None:
+    def convert_to_tweet(self, items: list, default_message: str = "") -> None:
         """
         Iterate list items and converts
         them into tweet.
@@ -54,8 +56,7 @@ class TwitterOperations(Creator):
                         valid = checkers.is_url(message)
                         if valid:
                             media = self.__oauth_api.media_upload(image)
-                            # Here you can provide some caption to the image or any message according to your use case.
-                            message = ""
+                            message = default_message
                             res = self.__client.create_tweet(text="", media_ids=[media.media_id])
                             id = list(res)[0]["id"]
                             res = self.__client.create_tweet(text=message, in_reply_to_tweet_id=id)
@@ -68,8 +69,9 @@ class TwitterOperations(Creator):
                     res = self.__client.create_tweet(text=message)
                 elif image and not message:
                     media = self.__oauth_api.media_upload(image)
-                    # Here you can provide some caption to the image or any message according to your use case.
-                    res = self.__client.create_tweet(text=message, media_ids=[media.media_id])
+                    res = self.__client.create_tweet(
+                        text=default_message, media_ids=[media.media_id]
+                    )
             self.__remove_media()
         except Exception as send_tweet_err:
             raise send_tweet_err
@@ -79,26 +81,24 @@ class TwitterOperations(Creator):
         Checks if user_name exists in twitter or not.
         argument:
             user_name: user to be checked for
+        return:
+            id: id of the username
         """
         try:
+            id = None
             user_data = self.__client.get_user(username=user_name)
             user_data = dict(user_data.data)
             id = user_data.get("id", None)
         except Exception as user_err:
-            # self.__oauth_api.get_user(user_name=user_name)
             raise user_err
         return id
 
     def get_tweets(self, user_id: int):
-        current_timestamp = datetime.now().strftime("%Y%d%m_%H%M%S_%f")
+        current_timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         tweets_data = self.__client.get_users_mentions(
             id=user_id, max_results=100, start_time="2023-01-03T18:17:44Z"
         )
-        i = 0
         for item in tweets_data.data:
             i += 1
             print(i)
             print(dict(item))
-
-    def send_dm(self):
-        self.__oauth_api.send_direct_message(recipient_id=66954504, text="Bot DM")

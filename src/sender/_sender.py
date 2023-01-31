@@ -4,7 +4,6 @@ All telegram operations are performed here.
 
 
 import os
-import re
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
@@ -14,16 +13,17 @@ from telethon.sync import TelegramClient
 class TelegramOperation:
     """
     Source operations
+    command_check (bool): default value False, pass true if you
+                   want to use commands.
     """
 
     def __init__(self, command_check: bool = False):
-        """constructor"""
         self.__client = TelegramClient(
             "aps08", os.environ.get("API_ID"), os.environ.get("API_HASH")
         ).start()
         self.__check = command_check
 
-    def __command_check(self, telegram_data: list) -> Tuple[list, list]:
+    def command_check(self, telegram_data: list) -> Tuple[list, list]:
         """
         Iterate through the data and check the commands
         argument:
@@ -38,11 +38,9 @@ class TelegramOperation:
             for index, value in enumerate(telegram_data):
                 if value["message"]:
                     message = value["message"].strip()
-                    if re.match("@notice", message, re.IGNORECASE):
+                    if message.startswith("@notice"):
                         print("Ignoring message as it's a notice")
-                    elif re.match("@add", message, re.IGNORECASE) or re.match(
-                        "@remove", message, re.IGNORECASE
-                    ):
+                    elif message.startswith("@add") or message.startswith("@remove"):
                         filtered_commands.append(message)
                     else:
                         filtered_message.append(value)
