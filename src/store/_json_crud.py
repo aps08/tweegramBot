@@ -131,7 +131,3 @@ class JsonOperation:
                 )
         except Exception as remove_err:
             raise remove_err
-
-
-JsonOperation = JsonOperation()
-JsonOperation.add_user("aps08_", "qwretrtr")
