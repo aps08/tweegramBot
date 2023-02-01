@@ -44,16 +44,19 @@ class JsonOperation:
             raise token_err
         return prefix + token
 
-    def add_user(self, user_name: str, id: str) -> None:
+    def add_user(self, user_name: str, id: str) -> bool:
         """
         Add user to the list with the token
         if not existing.
         argument:
             user_name: user to be added
-            token: token for auth
             id: twitter id of the username
+        return:
+            user_added: True if user is added
+                        successfully
         """
         try:
+            user_added = False
             data = {
                 user_name: {
                     "user_name": user_name,
@@ -78,8 +81,10 @@ class JsonOperation:
                 file_data = data
             with open(self.__name, "w") as write_file:
                 json.dump(file_data, write_file, indent=4)
+                user_added = True
         except Exception as add_user_err:
             raise add_user_err
+        return user_added
 
     def check_user_exists(self, user_name: str) -> Tuple[bool, bool]:
         """
@@ -89,7 +94,8 @@ class JsonOperation:
             username: against which the check should
                       run
         return:
-            check: True if username exists
+            check: True if user exists
+            active: True is user is active
         """
         try:
             check, active = False, False
@@ -104,14 +110,17 @@ class JsonOperation:
             raise exist_err
         return check, active
 
-    def remove_user(self, user_name: str) -> None:
+    def remove_user(self, user_name: str) -> bool:
         """
         Removes the user from the json file.
         argument:
             username: against which the operation
             should be performed
+        return:
+            user_removed: True if user is removed.
         """
         try:
+            user_removed = False
             if os.path.isfile(self.__name):
                 exists, active = self.check_user_exists(user_name)
                 if exists:
@@ -121,6 +130,7 @@ class JsonOperation:
                             data[user_name]["active"] = False
                             rw_file.seek(0)
                             json.dump(data, rw_file, indent=4)
+                            user_removed = True
                     else:
                         raise ValueError("User already deleted.")
                 else:
@@ -131,3 +141,4 @@ class JsonOperation:
                 )
         except Exception as remove_err:
             raise remove_err
+        return user_removed
