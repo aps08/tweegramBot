@@ -14,7 +14,7 @@ file = file()
 for command in ["@add aps08", "@remove aps08"]:
     if command.startswith("@add"):
         user_name = command.split(" ")[-1]
-        user_id = receiver.user_info(user_name=user_name)
+        user_id = receiver.get_user_id(user_name=user_name)
         if user_id:
             token = file.create_token()
             added = file.add_user(user_name, token, user_id)

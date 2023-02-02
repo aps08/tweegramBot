@@ -5,12 +5,11 @@ without command features.
 import os
 import shutil
 from datetime import datetime
+from typing import Tuple
 
-import tweepy
+from _access import Creator
 from dotenv import load_dotenv
 from validator_collection import checkers
-
-from receiver._access import Creator
 
 load_dotenv()
 
@@ -39,8 +38,8 @@ class TwitterOperations(Creator):
             current_dir = os.getcwd()
             path = os.path.join(current_dir, "media")
             if os.path.exists(path):
-                removed = True
                 shutil.rmtree(path)
+                removed = True
         except Exception as del_err:
             raise del_err
         return removed
@@ -63,7 +62,7 @@ class TwitterOperations(Creator):
                             id = list(res)[0]["id"]
                             res = self.__client.create_tweet(text=message, in_reply_to_tweet_id=id)
                         else:
-                            ValueError("Only pass URL in message, when __link_fc is True")
+                            ValueError("Message should only contain URL, when __link_fc is True")
                     else:
                         media = self.__oauth_api.media_upload(image)
                         res = self.__client.create_tweet(text=message, media_ids=[media.media_id])
@@ -71,14 +70,12 @@ class TwitterOperations(Creator):
                     res = self.__client.create_tweet(text=message)
                 elif image and not message:
                     media = self.__oauth_api.media_upload(image)
-                    res = self.__client.create_tweet(
-                        text=default_message, media_ids=[media.media_id]
-                    )
+                    res = self.__client.create_tweet(text=default_message, media_ids=[media.media_id])
             self.__remove_media()
         except Exception as send_tweet_err:
             raise send_tweet_err
 
-    def user_info(self, user_name: str) -> int:
+    def get_user_id(self, user_name: str) -> int:
         """
         Checks if user_name exists in twitter or not.
         argument:
@@ -95,12 +92,49 @@ class TwitterOperations(Creator):
             raise user_err
         return id
 
-    def get_tweets(self, user_id: int):
+    def extract_token(self, tweet_text: str) -> str:
+        """
+        Extracts the token from teh text.
+        return:
+            token: the token for verification
+        """
+        try:
+            pass
+        except Exception as token_err:
+            raise token_err
+
+    def tweet_info(self, tweet_id: int) -> Tuple[int, str, str]:
+        """
+        Get information about a tweet id
+        return:
+            author_id: id of user whose has written the tweet
+            token: token used in the tweet
+            username: twitter username of the user
+        """
+        try:
+            author_id, token, username = None, None, None
+            tweets_data = self.__client.get_tweet(tweet_id, expansions=["author_id"])
+            print(tweets_data)
+        except Exception as tweet_info_err:
+            raise tweet_info_err
+        return author_id, token, username
+
+    def get_mentioned_tweets(self, user_id: int):
         current_timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         tweets_data = self.__client.get_users_mentions(
-            id=user_id, max_results=100, start_time="2023-01-03T18:17:44Z"
+            id=user_id, max_results=100, start_time="2023-01-03T18:17:44Z", expansions=["in_reply_to_user_id"]
         )
         for item in tweets_data.data:
-            i += 1
-            print(i)
             print(dict(item))
+
+    def re_tweet(self, tweet_id: int):
+        """
+        Retweet the
+        """
+
+
+# tech_referrals
+TwitterOperations = TwitterOperations()
+# user_id = TwitterOperations.get_user_id(user_name="tech_referrals")
+# TwitterOperations.get_mentioned_tweets(user_id)
+TwitterOperations.tweet_info(1616119474108891136)
