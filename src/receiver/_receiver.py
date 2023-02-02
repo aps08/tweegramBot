@@ -127,6 +127,13 @@ class TwitterOperations(Creator):
         for item in tweets_data.data:
             print(dict(item))
 
+    def get_mentioned_tweets2(self, user_id: int):
+        tweets_data = self.__client.search_recent_tweets(
+            query="to:@tech_referrals -filter:replies", max_results=100, start_time="2023-01-03T18:17:44Z"
+        )
+        for item in tweets_data.data:
+            print(dict(item))
+
     def re_tweet(self, tweet_id: int):
         """
         Retweet the
