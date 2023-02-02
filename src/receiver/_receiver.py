@@ -2,9 +2,7 @@
 All twitter operations are performed here
 without command features.
 """
-import json
 import os
-import re
 import shutil
 from datetime import datetime
 
@@ -31,17 +29,21 @@ class TwitterOperations(Creator):
         self.__client = self.get_client()
         self.__oauth_api = self.get_oauth()
 
-    def remove_media(self) -> None:
+    def remove_media(self) -> bool:
         """
         Fully remove the media folder.
+        removed: True if folder is removed.
         """
         try:
+            removed = False
             current_dir = os.getcwd()
             path = os.path.join(current_dir, "media")
             if os.path.exists(path):
+                removed = True
                 shutil.rmtree(path)
         except Exception as del_err:
             raise del_err
+        return removed
 
     def convert_to_tweet(self, items: list, default_message: str = "") -> None:
         """
