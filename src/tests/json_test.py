@@ -1,13 +1,11 @@
 import os
 import re
 import sys
-import time
 import unittest
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
-unittest.TestLoader.sortTestMethodsUsing = None
 from store import file
 
 
@@ -19,14 +17,14 @@ class Monolithic(unittest.TestCase):
 
     __name = "member_info.json"
 
-    def test_1_before_first_insert(self):
+    def test_before_first_insert(self):
         """
         Test for first insert.
         """
         result = os.path.isfile(self.__name)
         self.assertEqual(result, False)
 
-    def test_2_token_check(self):
+    def test_token_check(self):
         """
         Test for token format check.
         """
@@ -40,7 +38,7 @@ class Monolithic(unittest.TestCase):
             result = False
         self.assertEqual(result, True)
 
-    def test_3_add_new_user(self):
+    def test_add_new_user(self):
         """
         Test case for new user
         """
@@ -49,14 +47,14 @@ class Monolithic(unittest.TestCase):
         added = fileobj.add_user("aps08__", "random_token", 13243534)
         self.assertEqual(added, True)
 
-    def test_4_after_first_insert(self):
+    def test_after_first_insert(self):
         """
         Test for first insert.
         """
         result = os.path.isfile(self.__name)
         self.assertEqual(result, True)
 
-    def test_5_user_exists(self):
+    def test_user_exists(self):
         """
         Test case of user exists and active
         """
@@ -65,7 +63,7 @@ class Monolithic(unittest.TestCase):
         added = fileobj.add_user("aps08__", "random_token", 13243534)
         self.assertEqual(added, False)
 
-    def test_6_add_another_user(self):
+    def test_add_another_user(self):
         """
         Add second user.
         """
@@ -74,7 +72,7 @@ class Monolithic(unittest.TestCase):
         added = fileobj.add_user("hxlive", "random_token_two", 7544324)
         self.assertEqual(added, True)
 
-    def test_7_remove_user(self):
+    def test_remove_user(self):
         """
         Test case of changing activity of user
         """
@@ -83,7 +81,7 @@ class Monolithic(unittest.TestCase):
         removed = fileobj.remove_user("aps08__")
         self.assertEqual(removed, True)
 
-    def test_8_user_not_found(self):
+    def test_user_not_found(self):
         """
         Test case when user doesn't in record
         """
@@ -93,7 +91,7 @@ class Monolithic(unittest.TestCase):
         self.assertEqual(exists, False)
         self.assertEqual(active, False)
 
-    def test_9_unactive_user(self):
+    def test_unactive_user(self):
         """
         Test case to check unactive user
         """
@@ -103,7 +101,7 @@ class Monolithic(unittest.TestCase):
         self.assertEqual(exists, True)
         self.assertEqual(active, False)
 
-    def test_10_verify_no_user(self):
+    def test_verify_no_user(self):
         """
         Verify for user which doesn't exists
         """
@@ -112,7 +110,7 @@ class Monolithic(unittest.TestCase):
         verified = fileobj.verify("xccv", "random_token_two", 7544324)
         self.assertEqual(verified, False)
 
-    def test_11_remove_user_no_user(self):
+    def test_remove_user_no_user(self):
         """
         Test case for removing user which doesn't exists
         """
@@ -121,7 +119,7 @@ class Monolithic(unittest.TestCase):
         removed = fileobj.remove_user("xccwewd")
         self.assertEqual(removed, False)
 
-    def test_12_remove_already_removed_user(self):
+    def test_remove_already_removed_user(self):
         """
         Test case of changing activity of user
         """
@@ -130,7 +128,7 @@ class Monolithic(unittest.TestCase):
         removed = fileobj.remove_user("aps08__")
         self.assertEqual(removed, False)
 
-    def test_13_verify_user(self):
+    def test_verify_user(self):
         """
         Verify for user, id and token
         """

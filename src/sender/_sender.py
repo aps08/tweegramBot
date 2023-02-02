@@ -68,7 +68,7 @@ class TelegramOperation:
                 current_timestamp = datetime.now().strftime("%Y%d%m_%H%M%S_%f")
                 export = "media/" + current_timestamp
                 fetched_message, image_path = None, None
-                if message.photo and message.message and all(text, image):
+                if message.photo and message.message and all([text, image]):
                     image_path = self.__client.download_media(message, export)
                     fetched_message = message.message
                 elif message.photo and not message.message and image:
@@ -91,14 +91,19 @@ class TelegramOperation:
             raise get_message_err
         return commands, message
 
-    def send_message(self, text: str):
+    def send_message(self, text: str) -> bool:
         """
         Sends message to the owner if the twitter
         account user is trying to add doesn't exists.
         argument:
             text: string message to be sent to the owner.
+        return:
+            sent: True if message sent successfully.
         """
         try:
+            sent = False
             self.__client.send_message(entity="me", message=text)
+            sent = True
         except Exception as send_message_err:
             raise send_message_err
+        return sent
