@@ -16,6 +16,9 @@ class Monolithic(unittest.TestCase):
     """
 
     __name = "member_info.json"
+    __user = ("aps08__", "random_token", 13243534)
+    __newuser = ("hxlive", "random_token_two", 7544324)
+    __nouser = ("xccv", "random_token_two", 7544324)
 
     def test_before_first_insert(self):
         """
@@ -44,7 +47,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        added = fileobj.add_user("aps08__", "random_token", 13243534)
+        added = fileobj.add_user(self.__user[0], self.__user[1], self.__user[2])
         self.assertEqual(added, True)
 
     def test_after_first_insert(self):
@@ -60,7 +63,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        added = fileobj.add_user("aps08__", "random_token", 13243534)
+        added = fileobj.add_user(self.__user[0], self.__user[1], self.__user[2])
         self.assertEqual(added, False)
 
     def test_add_another_user(self):
@@ -69,7 +72,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        added = fileobj.add_user("hxlive", "random_token_two", 7544324)
+        added = fileobj.add_user(self.__newuser[0], self.__newuser[1], self.__newuser[2])
         self.assertEqual(added, True)
 
     def test_remove_user(self):
@@ -78,7 +81,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        removed = fileobj.remove_user("aps08__")
+        removed = fileobj.remove_user(self.__user[0])
         self.assertEqual(removed, True)
 
     def test_user_not_found(self):
@@ -97,7 +100,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        exists, active = fileobj.check_user_exists("aps08__")
+        exists, active = fileobj.check_user_exists(self.__user[0])
         self.assertEqual(exists, True)
         self.assertEqual(active, False)
 
@@ -107,7 +110,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        verified = fileobj.verify("xccv", "random_token_two", 7544324)
+        verified = fileobj.verify(self.__nouser[0], self.__nouser[1], self.__nouser[2])
         self.assertEqual(verified, False)
 
     def test_remove_user_no_user(self):
@@ -125,7 +128,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        removed = fileobj.remove_user("aps08__")
+        removed = fileobj.remove_user(self.__name[0])
         self.assertEqual(removed, False)
 
     def test_verify_user(self):
@@ -134,7 +137,7 @@ class Monolithic(unittest.TestCase):
         """
         fileobj = None
         fileobj = file()
-        verified = fileobj.verify("hxlive", "random_token_two", 7544324)
+        verified = fileobj.verify(self.__newuser[0], self.__newuser[1], self.__newuser[2])
         self.assertEqual(verified, True)
 
 

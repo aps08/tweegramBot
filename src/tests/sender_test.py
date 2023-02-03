@@ -14,6 +14,12 @@ class Monolithic(unittest.TestCase):
     Run the test functions one by one in order.
     """
 
+    __messages = [
+        {"message": "@notice Notice all"},
+        {"message": "I'm working on tweegramBot"},
+        {"message": "@remove aps08__"},
+    ]
+
     def test_empty_list(self):
         """
         Test case for passing empty
@@ -53,3 +59,14 @@ class Monolithic(unittest.TestCase):
         comm, mess = senderobj.get_messages(text=True, image=True)
         self.assertEqual(len(comm) > 1, True)
         self.assertEqual(len(mess) > 1, True)
+
+    def test_command_check(self):
+        """
+        Test case for checking if the commands
+        are getting seperated from normal messages
+        """
+        senderobj = None
+        senderobj = sender(command_check=True)
+        comm, mess = senderobj.command_check(self.__messages)
+        self.assertEqual(len(comm), 1)
+        self.assertEqual(len(mess), 1)
