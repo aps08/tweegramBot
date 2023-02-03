@@ -29,8 +29,8 @@ class JsonOperation:
 
     """
 
-    def __init__(self) -> None:
-        self.__name = "member_info.json"
+    def __init__(self, file_name: str = "member_info.json") -> None:
+        self.__name = file_name
 
     def __read_record(self) -> dict:
         """

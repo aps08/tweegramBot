@@ -1,5 +1,10 @@
+from receiver import receiver
+from sender import sender
 from store import file
 
-file = file()
-# file.remove_user("aps08")
-print(file.check_user_exists("aps08__"))
+
+class TweegramBot(receiver, sender, file):
+    def __init__(self, username: str, link_fc: bool = False, retweet_text: str = "Retweet for better reach."):
+        file.__init__(self)
+        sender.__init__(self)
+        receiver.__init__(self)
