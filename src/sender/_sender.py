@@ -38,8 +38,9 @@ class TelegramOperation:
         filtered_message = []
         try:
             for _, value in enumerate(telegram_data):
-                if value["message"]:
-                    message = value["message"].strip()
+                message = value.get("message", "")
+                if message:
+                    message = message.strip()
                     if message.startswith("@notice"):
                         pass
                     elif message.startswith("@add") or message.startswith("@remove"):
