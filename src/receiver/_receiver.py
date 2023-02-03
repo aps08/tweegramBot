@@ -3,6 +3,7 @@ All twitter operations are performed here
 without command features.
 """
 import os
+import re
 import shutil
 from datetime import datetime
 from typing import Tuple
@@ -18,15 +19,17 @@ class TwitterOperations(Creator):
     """
     Destination operation.
     link_fc (bool): default value False, change it to true,
-                    in order to add links in first comment.
+                    in order to add link in first comment.
     """
 
-    def __init__(self, link_fc: bool = False):
+    def __init__(self, username: str, link_fc: bool = False, retweet_text: str = "Retweet for better reach."):
         """constructor"""
         Creator.__init__(self)
         self.__link_fc = link_fc
         self.__client = self.get_client()
         self.__oauth_api = self.get_oauth()
+        self.__username = username
+        self.__retweet_text = retweet_text
 
     def remove_media(self) -> bool:
         """
@@ -75,35 +78,32 @@ class TwitterOperations(Creator):
         except Exception as send_tweet_err:
             raise send_tweet_err
 
-    def get_user_id(self, user_name: str) -> int:
+    def get_user_id(self, user_name: str = "", author_id: int = 0) -> int | str:
         """
         Checks if user_name exists in twitter or not.
         argument:
-            user_name: user to be checked for
+            user_name: id to be checked against, default value ""
+            author_id: username to be checked against, default value 0
         return:
-            id: id of the username
+            result: id or username as per input
         """
         try:
-            id = None
-            user_data = self.__client.get_user(username=user_name)
-            user_data = dict(user_data.data)
-            id = user_data.get("id", None)
+            result = None
+            key = None
+            if user_name:
+                user_data = self.__client.get_user(username=user_name)
+                key = "id"
+            elif author_id:
+                user_data = self.__client.get_user(id=author_id)
+                key = "username"
+            if user_data.data:
+                user_data_dict = dict(user_data.data)
+            result = user_data_dict.get(key, None)
         except Exception as user_err:
             raise user_err
-        return id
+        return result
 
-    def extract_token(self, tweet_text: str) -> str:
-        """
-        Extracts the token from teh text.
-        return:
-            token: the token for verification
-        """
-        try:
-            pass
-        except Exception as token_err:
-            raise token_err
-
-    def tweet_info(self, tweet_id: int) -> Tuple[int, str, str]:
+    def tweet_info(self, tweet_id: int) -> dict:
         """
         Get information about a tweet id
         return:
@@ -114,34 +114,52 @@ class TwitterOperations(Creator):
         try:
             author_id, token, username = None, None, None
             tweets_data = self.__client.get_tweet(tweet_id, expansions=["author_id"])
-            print(tweets_data)
+            if tweets_data.data:
+                tweet_data_dict = dict(tweets_data.data)
+                author_id = tweet_data_dict.get("author_id", "")
+                text = tweet_data_dict.get("text", "")
+                hashlist = re.findall("#(\w+)", text)
+                for hash in hashlist:
+                    if hash.startswith("GTR"):
+                        token = hash.split("_")[-1]
+                username = self.get_user_id(author_id=author_id)
         except Exception as tweet_info_err:
             raise tweet_info_err
-        return author_id, token, username
+        return {"author_id": author_id, "token": token, "username": username}
 
-    def get_mentioned_tweets(self, user_id: int):
-        current_timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        tweets_data = self.__client.get_users_mentions(
-            id=user_id, max_results=100, start_time="2023-01-03T18:17:44Z", expansions=["in_reply_to_user_id"]
-        )
-        for item in tweets_data.data:
-            print(dict(item))
-
-    def get_mentioned_tweets2(self, user_id: int):
-        tweets_data = self.__client.search_recent_tweets(
-            query="to:@tech_referrals -filter:replies", max_results=100, start_time="2023-01-03T18:17:44Z"
-        )
-        for item in tweets_data.data:
-            print(dict(item))
+    def get_mentioned_tweets(self) -> dict:
+        """
+        Gets tweet where the bot is mentioned.
+        """
+        try:
+            tweet_data = dict()
+            # date_time = datetime.now(timezone.utc) - timedelta(days=10.0)
+            tweets_data = self.__client.search_recent_tweets(
+                query=f"(hiring OR opening) (@{self.__username}) lang:en -is:reply -is:retweet",
+                max_results=100,
+                start_time="2023-01-27T18:17:44Z",
+            )
+            if tweets_data.data:
+                for item in tweets_data.data:
+                    item = dict(item)
+                    tweet_id = item.get("id", 0)
+                    data = {tweet_id: self.tweet_info(tweet_id)}
+                    tweet_data.update(data)
+        except Exception as mention_err:
+            raise mention_err
+        return tweet_data
 
     def re_tweet(self, tweet_id: int):
         """
         Retweet the
         """
+        res = self.__client.create_tweet(text=self.__retweet_text, quote_tweet_id=tweet_id)
+        print(res)
 
 
 # tech_referrals
 TwitterOperations = TwitterOperations()
 # user_id = TwitterOperations.get_user_id(user_name="tech_referrals")
-# TwitterOperations.get_mentioned_tweets(user_id)
-TwitterOperations.tweet_info(1616119474108891136)
+# print(TwitterOperations.get_mentioned_tweets())
+# print(TwitterOperations.tweet_info(1621541525183430657))
+TwitterOperations.re_tweet(1621541525183430657)
