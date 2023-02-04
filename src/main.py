@@ -15,6 +15,7 @@ class TweegramBot(receiver, sender, store):
         add_message: str = """Thank you for joining us @{}.You have been added to our list with #{}.Tag us with this token as hashtag.""",
         remove_message: str = "{} tweeter user has been removed.",
         only_img_mess: str = "Opening \U0001F603",
+        re_tweet_mentioned: bool = False,
     ) -> None:
         receiver.__init__(
             self,
@@ -28,6 +29,7 @@ class TweegramBot(receiver, sender, store):
         store.__init__(self, file_name=file_name, prefix=prefix)
         self.__add_message = add_message
         self.__remove_message = remove_message
+        self.__re_tweet_mentioned = re_tweet_mentioned
 
     def command_execution(self, commands: list) -> None:
         """
@@ -62,15 +64,16 @@ class TweegramBot(receiver, sender, store):
             self.convert_to_tweet(messages)
 
     def increase_reach(self) -> None:
-        items = self.get_mentioned_tweets()
-        for tweet_id, author_data in items.items():
-            author_id = author_data.get("author_id", "")
-            token = author_data.get("token", "")
-            username = author_data.get("username", "")
-            if author_id and token and username:
-                verified = self.verify(username, token, author_id)
-                if verified:
-                    self.re_tweet(tweet_id)
+        if self.__re_tweet_mentioned:
+            items = self.get_mentioned_tweets()
+            for tweet_id, author_data in items.items():
+                author_id = author_data.get("author_id", "")
+                token = author_data.get("token", "")
+                username = author_data.get("username", "")
+                if author_id and token and username:
+                    verified = self.verify(username, token, author_id)
+                    if verified:
+                        self.re_tweet(tweet_id)
 
     def start(self) -> None:
         self.retrieving()

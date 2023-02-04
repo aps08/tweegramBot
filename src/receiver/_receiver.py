@@ -18,7 +18,7 @@ load_dotenv()
 
 class Creator:
     """
-    Creates required objects
+    Creates required objects.
     """
 
     def get_client(self) -> Client:
