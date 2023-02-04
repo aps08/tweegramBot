@@ -29,8 +29,9 @@ class JsonOperation:
 
     """
 
-    def __init__(self, file_name: str = "member_info.json") -> None:
+    def __init__(self, file_name: str = "member_info.json", prefix: str = "GTR_") -> None:
         self.__name = file_name
+        self.__prefix = prefix
 
     def __read_record(self) -> dict:
         """
@@ -60,7 +61,6 @@ class JsonOperation:
         """
         try:
             token = None
-            prefix = "GTR_"
             if os.path.isfile(self.__name):
                 while True:
                     token = "".join(random.choices(string.ascii_uppercase + string.digits, k=10))
@@ -72,7 +72,7 @@ class JsonOperation:
                 token = "".join(random.choices(string.ascii_uppercase + string.digits, k=10))
         except Exception as token_err:
             raise token_err
-        return prefix + token
+        return self.__prefix + token
 
     def add_user(self, user_name: str, token: str, id: int) -> bool:
         """

@@ -139,7 +139,3 @@ class Monolithic(unittest.TestCase):
         fileobj = file()
         verified = fileobj.verify(self.__newuser[0], self.__newuser[1], self.__newuser[2])
         self.assertEqual(verified, True)
-
-
-if __name__ == "__main__":
-    unittest.main()
