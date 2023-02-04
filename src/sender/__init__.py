@@ -1,1 +1,1 @@
-from sender._sender import TelegramOperation as sender
+from ._sender import TelegramOperation as sender

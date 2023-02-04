@@ -6,7 +6,7 @@ import unittest
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
-from store import file
+from src import store
 
 
 class Monolithic(unittest.TestCase):
@@ -32,7 +32,7 @@ class Monolithic(unittest.TestCase):
         Test for token format check.
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         token = fileobj.create_token()
         token = token.split("_")[-1]
         if re.search("^[A-Z0-9]{10}$", token):
@@ -46,7 +46,7 @@ class Monolithic(unittest.TestCase):
         Test case for new user
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         added = fileobj.add_user(self.__user[0], self.__user[1], self.__user[2])
         self.assertEqual(added, True)
 
@@ -62,7 +62,7 @@ class Monolithic(unittest.TestCase):
         Test case of user exists and active
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         added = fileobj.add_user(self.__user[0], self.__user[1], self.__user[2])
         self.assertEqual(added, False)
 
@@ -71,7 +71,7 @@ class Monolithic(unittest.TestCase):
         Add second user.
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         added = fileobj.add_user(self.__newuser[0], self.__newuser[1], self.__newuser[2])
         self.assertEqual(added, True)
 
@@ -80,7 +80,7 @@ class Monolithic(unittest.TestCase):
         Test case of changing activity of user
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         removed = fileobj.remove_user(self.__user[0])
         self.assertEqual(removed, True)
 
@@ -89,7 +89,7 @@ class Monolithic(unittest.TestCase):
         Test case when user doesn't in record
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         exists, active = fileobj.check_user_exists("fireOx")
         self.assertEqual(exists, False)
         self.assertEqual(active, False)
@@ -99,7 +99,7 @@ class Monolithic(unittest.TestCase):
         Test case to check unactive user
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         exists, active = fileobj.check_user_exists(self.__user[0])
         self.assertEqual(exists, True)
         self.assertEqual(active, False)
@@ -109,7 +109,7 @@ class Monolithic(unittest.TestCase):
         Verify for user which doesn't exists
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         verified = fileobj.verify(self.__nouser[0], self.__nouser[1], self.__nouser[2])
         self.assertEqual(verified, False)
 
@@ -118,7 +118,7 @@ class Monolithic(unittest.TestCase):
         Test case for removing user which doesn't exists
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         removed = fileobj.remove_user("xccwewd")
         self.assertEqual(removed, False)
 
@@ -127,7 +127,7 @@ class Monolithic(unittest.TestCase):
         Test case of changing activity of user
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         removed = fileobj.remove_user(self.__name[0])
         self.assertEqual(removed, False)
 
@@ -136,6 +136,6 @@ class Monolithic(unittest.TestCase):
         Verify for user, id and token
         """
         fileobj = None
-        fileobj = file()
+        fileobj = store()
         verified = fileobj.verify(self.__newuser[0], self.__newuser[1], self.__newuser[2])
         self.assertEqual(verified, True)

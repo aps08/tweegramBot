@@ -1,1 +1,1 @@
-from receiver._receiver import TwitterOperations as receiver
+from ._receiver import TwitterOperations as receiver

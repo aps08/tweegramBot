@@ -1,1 +1,1 @@
-from store._json_crud import JsonOperation as file
+from ._json_crud import JsonOperation as store

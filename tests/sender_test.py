@@ -5,7 +5,7 @@ import unittest
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
-from sender import sender
+from src import sender
 
 
 class Monolithic(unittest.TestCase):
