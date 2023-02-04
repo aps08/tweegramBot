@@ -67,13 +67,7 @@ class TwitterOperations(Creator):
                     quote.
     """
 
-    def __init__(
-        self,
-        username: str,
-        first_comment: bool = False,
-        prefix: str = "GTR_",
-        retweet_text: str = "Retweet for better reach. \U0001F603",
-    ):
+    def __init__(self, username: str, first_comment: bool, prefix: str, retweet_text: str, only_img_mess: str):
         """constructor"""
         Creator.__init__(self)
         self.__client = self.get_client()
@@ -82,6 +76,7 @@ class TwitterOperations(Creator):
         self.__username = username
         self.__retweet_text = retweet_text
         self.__prefic = prefix
+        self.__only_img_mess = only_img_mess
 
     def remove_media(self) -> bool:
         """
@@ -99,7 +94,7 @@ class TwitterOperations(Creator):
             raise del_err
         return removed
 
-    def convert_to_tweet(self, items: list, default_message: str = "") -> None:
+    def convert_to_tweet(self, items: list) -> None:
         """
         Iterate list items and converts
         them into tweet.
@@ -112,8 +107,7 @@ class TwitterOperations(Creator):
                         valid = checkers.is_url(message)
                         if valid:
                             media = self.__oauth_api.media_upload(image)
-                            message = default_message
-                            res = self.__client.create_tweet(text="", media_ids=[media.media_id])
+                            res = self.__client.create_tweet(text=self.__only_img_mess, media_ids=[media.media_id])
                             id = list(res)[0]["id"]
                             res = self.__client.create_tweet(text=message, in_reply_to_tweet_id=id)
                         else:
@@ -126,8 +120,7 @@ class TwitterOperations(Creator):
                     res = self.__client.create_tweet(text=message)
                 elif image and not message:
                     media = self.__oauth_api.media_upload(image)
-                    res = self.__client.create_tweet(text=default_message, media_ids=[media.media_id])
-            self.__remove_media()
+                    res = self.__client.create_tweet(text=self.__only_img_mess, media_ids=[media.media_id])
         except Exception as send_tweet_err:
             raise send_tweet_err
 

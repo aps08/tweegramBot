@@ -4,12 +4,12 @@ All telegram operations are performed here.
 
 
 import os
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
 from dotenv import load_dotenv
 from telethon.sync import TelegramClient
-from telethon.types import MessageMediaEmpty
 
 load_dotenv()
 
@@ -21,9 +21,9 @@ class TelegramOperation:
                    want to use commands.
     """
 
-    def __init__(self, command_check: bool = False):
-        self.__client = TelegramClient("aps08", os.environ.get("API_ID"), os.environ.get("API_HASH")).start()
-        self.__check = command_check
+    def __init__(self, command_check: bool):
+        self.__client = TelegramClient("aps", os.environ.get("API_ID"), os.environ.get("API_HASH")).start()
+        self.check = command_check
 
     def command_check(self, telegram_data: list) -> Tuple[list, list]:
         """
@@ -64,8 +64,9 @@ class TelegramOperation:
         """
         try:
             fetched_data = []
-            date_time = datetime.now(timezone.utc) - timedelta(days=10.0)
-            for message in self.__client.iter_messages(entity="pytweegram", offset_date=date_time, reverse=True):
+            date_time = datetime.now(timezone.utc) - timedelta(hours=1.0)
+            messages = self.__client.iter_messages(entity="pytweegram", offset_date=date_time, reverse=True)
+            for message in messages:
                 current_timestamp = datetime.now().strftime("%Y%d%m_%H%M%S_%f")
                 export = "media/" + current_timestamp
                 fetched_message, image_path = None, None
@@ -84,7 +85,7 @@ class TelegramOperation:
                     image_path = image_path.replace("\\", "/")
                 if fetched_message or image_path:
                     fetched_data.append({"message": fetched_message, "image": image_path})
-            if self.__check:
+            if self.check:
                 commands, message = self.command_check(fetched_data)
             else:
                 commands, message = [], fetched_data
@@ -92,19 +93,26 @@ class TelegramOperation:
             raise get_message_err
         return commands, message
 
-    def send_message(self, text: str) -> bool:
+    def send_message(self, text: str = "", file: bool = False) -> bool:
         """
         Sends message to the owner if the twitter
         account user is trying to add doesn't exists.
         argument:
-            text: string message to be sent to the owner.
+            text: Default value "",string message to be sent
+                 to the owner.
+            file: Default value False, True when you send
+                log file.
         return:
             sent: True if message sent successfully.
         """
         try:
             sent = False
-            self.__client.send_message(entity="me", message=text)
-            sent = True
+            if file:
+                self.__client.send_file(entity="me", file="tweegram.log")
+                sent = True
+            else:
+                self.__client.send_message(entity="me", message=text)
+                sent = True
         except Exception as send_message_err:
             raise send_message_err
         return sent

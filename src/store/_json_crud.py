@@ -29,7 +29,7 @@ class JsonOperation:
 
     """
 
-    def __init__(self, file_name: str = "member_info.json", prefix: str = "GTR_") -> None:
+    def __init__(self, file_name: str, prefix: str) -> None:
         self.__name = file_name
         self.__prefix = prefix
 
@@ -93,7 +93,7 @@ class JsonOperation:
                 user_name: {
                     "user_name": user_name,
                     "id": id,
-                    "token": token,
+                    "token": token.replace(self.__prefix, ""),
                     "active": True,
                 }
             }
@@ -163,7 +163,7 @@ class JsonOperation:
             raise remove_err
         return user_removed
 
-    def verify(self, user_name: str, token: str, id: int) -> bool:
+    def verify(self, user_name: str, token: str, ver_id: int) -> bool:
         """
         Verifies the tweet for retweet.
         argument:
@@ -175,12 +175,15 @@ class JsonOperation:
             verify = False
             exists, active = self.check_user_exists(user_name)
             if exists and active:
-                data = self.__read_record()[user_name]
-                user_id = data.get("id", "")
-                user_token = data.get("token", "")
-                user_user_name = data.get("user_name", "")
-                if user_id == id and user_token == token and user_user_name == user_name:
-                    verify = True
+                data = self.__read_record()
+                data = data.get(user_name, "")
+                if data:
+                    user_id = data.get("id", "")
+                    user_token = data.get("token", "")
+                    user_user_name = data.get("user_name", "")
+                    active = data.get("active", "")
+                    if user_id == ver_id and user_token == token and user_user_name == user_name and active:
+                        verify = True
         except Exception as verify_err:
             raise verify_err
         return verify

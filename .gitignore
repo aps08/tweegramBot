@@ -7,7 +7,7 @@ __pycache__/
 *.so
 .env
 media/
-aps08.session
+*.session
 note.txt
 **/*.jpg
 *.json
