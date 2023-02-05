@@ -6,11 +6,6 @@ __pycache__/
 # C extensions
 *.so
 .env
-media/
-*.session
-note.txt
-**/*.jpg
-*.json
 # Distribution / packaging
 .Python
 build/

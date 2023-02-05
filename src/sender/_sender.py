@@ -71,7 +71,7 @@ class TelegramOperation:
             self.__logger.info("running %s", self.get_messages.__name__)
             fetched_data = []
             date_time = datetime.now(timezone.utc) - timedelta(hours=1.0)
-            messages = self.__client.iter_messages(entity="pytweegram", offset_date=date_time, reverse=True)
+            messages = self.__client.iter_messages(entity=os.environ.get("ENTITY"), offset_date=date_time, reverse=True)
             self.__logger.info("Getting messages from telegram from past 1 hour.")
             for message in messages:
                 current_timestamp = datetime.now().strftime("%Y%d%m_%H%M%S_%f")

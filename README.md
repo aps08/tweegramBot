@@ -1,13 +1,18 @@
-# twigramBot
+![banner](./docs/images/banner.png)
+<p align="center">
+    <img src="https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white" alt="vscode">
+    <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
+    <img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter">
+    <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions">
+    <img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram">
+</p>
 
-twigramBot is a mini-script, which helps you to convert telegram messages to twitter tweets.
+# tweegramBot
+A semi-configured respository, which help you convert your telegram messages to twitter tweets, also retweet the tweets tweeted by specific list of users.
 
-## Made with
-![code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)
-![Github Action](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
-![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)
+## Notes
+* One time manual setup is required, to create the `*.session` file, for telegram operations.
+* It is recommended to not keep the repository in public, with the `*.session`, which was created in the first step, and `*.json` file which will be created when you add users to your list.
 
 ## How to use
 1. Get your API secrets for telegram from [here](https://my.telegram.org/apps).
@@ -15,15 +20,9 @@ twigramBot is a mini-script, which helps you to convert telegram messages to twi
 3. Fork this reposiotry, and uncomment the commented lines in [this](https://github.com/aps08/teltotwt/blob/main/.github/workfows/actions.yml) file.
 4. Create secrets for this repository. Total 8 secret key-value pair need to be created, 6 of them would be the API secrets, 1 would be telegram group/user name and 1 would be your github email. You can see the keys and instructions in [this](https://github.com/aps08/teltotwt/blob/main/src/config.py) file.
 5. Once the above steps are completed, this repo will run everyday at mid-night, and convert all your telegram messages into tweets.
-
-## Note
-1. *For this to work, one time manual process is required for telegram, where a session file will be generated.*
-2. *Do not keep the repository in public, with the **session** file*.
-
-
-## Where to find me
  
-<p align="left">
+<br>
+<p align="center">
  <a href="https://twitter.com/aps08__"><img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white"></a>
  <a href="https://medium.com/@aps08"><img src="https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white"></a>
  <a href="https://www.linkedin.com/in/aps08"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>
