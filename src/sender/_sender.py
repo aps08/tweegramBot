@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from datetime import datetime, timedelta, timezone
@@ -17,8 +18,11 @@ class TelegramOperation:
     """
 
     def __init__(self, command_check: bool):
-        self.__client = TelegramClient("aps", os.environ.get("API_ID"), os.environ.get("API_HASH")).start()
+        self.__client = TelegramClient("tweegramBot", os.environ.get("API_ID"), os.environ.get("API_HASH")).start()
         self.check = command_check
+        self.s_error = False
+        self.__logger = logging.getLogger("tweegramBot")
+        self.__logger.info("sender module is initialized.")
 
     def command_check(self, telegram_data: list) -> Tuple[list, list]:
         """
@@ -32,19 +36,24 @@ class TelegramOperation:
         filtered_commands = []
         filtered_message = []
         try:
+            self.__logger.info("running %s", self.command_check.__name__)
             for _, value in enumerate(telegram_data):
                 message = value.get("message", "")
                 if message:
                     message = message.strip()
                     if message.startswith("@notice"):
                         pass
+                        self.__logger.info("Ignoring notice.")
                     elif message.startswith("@add") or message.startswith("@remove"):
                         filtered_commands.append(message)
                     else:
                         filtered_message.append(value)
                 else:
                     filtered_message.append(value)
+            self.__logger.info("Filtering commands and messages completed.")
         except Exception as comm_err:
+            self.__logger.error("Error in %s %s", self.command_check.__name__, comm_err)
+            self.s_error = True
             raise comm_err
         return filtered_commands, filtered_message
 
@@ -62,9 +71,11 @@ class TelegramOperation:
             gif : default value True.
         """
         try:
+            self.__logger.info("running %s", self.get_messages.__name__)
             fetched_data = []
             date_time = datetime.now(timezone.utc) - timedelta(hours=1.0)
             messages = self.__client.iter_messages(entity="pytweegram", offset_date=date_time, reverse=True)
+            self.__logger.info("Getting messages from telegram from past 1 hour.")
             for message in messages:
                 current_timestamp = datetime.now().strftime("%Y%d%m_%H%M%S_%f")
                 export = "media/" + current_timestamp
@@ -89,29 +100,30 @@ class TelegramOperation:
             else:
                 commands, message = [], fetched_data
         except Exception as get_message_err:
+            self.__logger.error("Error in %s %s", self.get_messages.__name__, get_message_err)
+            self.s_error = True
             raise get_message_err
         return commands, message
 
-    def send_message(self, text: str = "", file: bool = False) -> bool:
+    def send_message(self, text: str) -> bool:
         """
         Sends message to the owner if the twitter
         account user is trying to add doesn't exists.
         argument:
             text: Default value "",string message to be sent
                  to the owner.
-            file: Default value False, True when you send
-                log file.
         return:
             sent: True if message sent successfully.
         """
         try:
+            self.__logger.info("running %s", self.send_message.__name__)
             sent = False
-            if file:
-                self.__client.send_file(entity="me", file="tweegram.log")
-                sent = True
-            else:
+            if text:
                 self.__client.send_message(entity="me", message=text)
                 sent = True
+                self.__logger.info("sent the text.")
         except Exception as send_message_err:
+            self.__logger.error("Error in %s %s", self.send_message.__name__, send_message_err)
+            self.s_error = True
             raise send_message_err
         return sent

@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import shutil
@@ -78,6 +79,9 @@ class TwitterOperations(Creator):
         self.__retweet_text = retweet_text
         self.__prefix = prefix
         self.__only_img_mess = only_img_mess
+        self.r_error = False
+        self.__logger = logging.getLogger("tweegramBot")
+        self.__logger.info("receiver module is initialized.")
 
     def remove_media(self) -> bool:
         """
@@ -86,13 +90,17 @@ class TwitterOperations(Creator):
             removed: True if folder is removed.
         """
         try:
+            self.__logger.info("running %s", self.remove_media.__name__)
             removed = False
             current_dir = os.getcwd()
             path = os.path.join(current_dir, "media")
             if os.path.exists(path):
                 shutil.rmtree(path)
+                self.__logger.info("media folder removed.")
                 removed = True
         except Exception as del_err:
+            self.__logger.error("Error in %s %s", self.remove_media.__name__, del_err)
+            self.r_error = True
             raise del_err
         return removed
 
@@ -105,6 +113,7 @@ class TwitterOperations(Creator):
             dictionary contain message and image key.
         """
         try:
+            self.__logger.info("running %s", self.convert_to_tweet.__name__)
             for item in items:
                 message, image = item.get("message", ""), item.get("image", "")
                 if message and image:
@@ -115,18 +124,25 @@ class TwitterOperations(Creator):
                             res = self.__client.create_tweet(text=self.__only_img_mess, media_ids=[media.media_id])
                             id = list(res)[0]["id"]
                             res = self.__client.create_tweet(text=message, in_reply_to_tweet_id=id)
+                            self.__logger.info("Tweeting with link in first comment.")
                         else:
                             media = self.__oauth_api.media_upload(image)
                             res = self.__client.create_tweet(text=message, media_ids=[media.media_id])
+                            self.__logger.info("Tweeting with link in the tweet. Not everthing in the text is a link")
                     else:
                         media = self.__oauth_api.media_upload(image)
                         res = self.__client.create_tweet(text=message, media_ids=[media.media_id])
+                        self.__logger.info("Tweeting with image and text")
                 elif message and not image:
                     res = self.__client.create_tweet(text=message)
+                    self.__logger.info("Tweeting with only text")
                 elif image and not message:
                     media = self.__oauth_api.media_upload(image)
                     res = self.__client.create_tweet(text=self.__only_img_mess, media_ids=[media.media_id])
+                    self.__logger.info("Tweeting with only image, with custom caption text.")
         except Exception as send_tweet_err:
+            self.__logger.error("Error in %s %s", self.convert_to_tweet.__name__, send_tweet_err)
+            self.r_error = True
             raise send_tweet_err
 
     def get_user_id(self, user_name: str) -> bool:
@@ -138,11 +154,15 @@ class TwitterOperations(Creator):
             result: id or username as per input
         """
         try:
+            self.__logger.info("running %s", self.get_user_id.__name__)
             result = False
             user_data = self.__client.get_user(username=user_name)
             if user_data.data:
                 result = True
+                self.__logger.info("user found on twitter.")
         except Exception as user_err:
+            self.__logger.error("Error in %s %s", self.get_user_id.__name__, user_err)
+            self.r_error = True
             raise user_err
         return result
 
@@ -155,16 +175,17 @@ class TwitterOperations(Creator):
             tweet_data: list of dictionary with tweet_id and token
         """
         try:
+            self.__logger.info("running %s", self.get_mentioned_tweets.__name__)
             tweet_data = list()
             date_time = datetime.now(timezone.utc) - timedelta(hours=1.0)
             date_time_string = date_time.strftime("%Y-%m-%dT%H:%M:%SZ")
-            print(f"(hiring OR opening) ({users}) (@{self.__username}) -is:retweet -is:reply")
             tweets_data = self.__client.search_recent_tweets(
                 query=f"(hiring OR opening) ({users}) (@{self.__username}) -is:retweet -is:reply",
                 expansions=["entities.mentions.username", "author_id"],
                 max_results=100,
                 start_time=date_time_string,
             )
+            self.__logger.info("Getting mentioned tweets in last one hour.")
             if tweets_data.data and tweets_data.includes:
                 for tweet, user in zip(tweets_data.data, tweets_data.includes["users"]):
                     tweet = dict(tweet)
@@ -179,6 +200,8 @@ class TwitterOperations(Creator):
                             hash_token = hash_token[0].split("_")[-1]
                             tweet_data.append({"tweet_id": tweet_id, "token": hash_token, "username": username})
         except Exception as mention_err:
+            self.__logger.error("Error in %s %s", self.get_mentioned_tweets.__name__, mention_err)
+            self.r_error = True
             raise mention_err
         return tweet_data
 
@@ -189,4 +212,11 @@ class TwitterOperations(Creator):
         argument:
             tweet_id: tweet id to be tweeted.
         """
-        res = self.__client.create_tweet(text=self.__retweet_text, quote_tweet_id=tweet_id)
+        try:
+            self.__logger.info("running %s", self.re_tweet.__name__)
+            res = self.__client.create_tweet(text=self.__retweet_text, quote_tweet_id=tweet_id)
+            self.__logger.info("retweeted.")
+        except Exception as retweet_err:
+            self.__logger.error("Error in %s %s", self.re_tweet.__name__, retweet_err)
+            self.r_error = True
+            raise retweet_err
