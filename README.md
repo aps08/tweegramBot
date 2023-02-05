@@ -22,11 +22,13 @@ A semi-configured respository, which help you convert your telegram messages to 
 5. Once the above steps are completed, this repo will run everyday at mid-night, and convert all your telegram messages into tweets.
 
 ### Command features you can use on telegram
-* `@add <twitter username>` => adds the user to white list.
-* `@notice <your message>` => these message will be considered as notice for telegram channel, and not be tweeted.
-* `@remove <twitter username>` => removes the user from white list.
+```
+* @add <TWITTER USERNAME> => adds the user to white list.
+* @notice <YOUR MESSAGE> => these message will be considered as notice for telegram channel, and not be tweeted.
+* @remove <TWITTER USERNAME> => removes the user from white list.
+```
 
-### Default configuration and how to customize it
+### Default configuration, description and how to customize it
 ```python
 class Default:
     """
