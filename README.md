@@ -20,7 +20,11 @@ A semi-configured respository, which help you convert your telegram messages to 
 3. Fork this reposiotry, and uncomment the commented lines in [this](https://github.com/aps08/teltotwt/blob/main/.github/workfows/actions.yml) file.
 4. Create secrets for this repository. Total 8 secret key-value pair need to be created, 6 of them would be the API secrets, 1 would be telegram group/user name and 1 would be your github email. You can see the keys and instructions in [this](https://github.com/aps08/teltotwt/blob/main/src/config.py) file.
 5. Once the above steps are completed, this repo will run everyday at mid-night, and convert all your telegram messages into tweets.
- 
+
+## Default Configuration and how to customize it
+```
+print("Hello")
+```
 <br>
 <p align="center">
  <a href="https://twitter.com/aps08__"><img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white"></a>
