@@ -26,9 +26,9 @@ jobs:
         env:
           ENTITY: ${{ secrets.ENTITY }}
           USERNAME: ${{ secrets.USERNAME }}
-          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           API_ID: ${{ secrets.API_ID }}
           API_HASH: ${{ secrets.API_HASH }}
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
           API_KEY: ${{ secrets.API_KEY }}
           API_SECRET: ${{ secrets.API_SECRET }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
