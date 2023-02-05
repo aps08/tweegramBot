@@ -5,12 +5,9 @@ import shutil
 from datetime import datetime, timedelta, timezone
 
 import tweepy
-from dotenv import load_dotenv
 from tweepy.api import API
 from tweepy.client import Client
 from validator_collection import checkers
-
-load_dotenv()
 
 
 class Creator:

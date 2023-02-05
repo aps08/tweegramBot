@@ -2,13 +2,10 @@ import io
 import logging
 import os
 
-from dotenv import load_dotenv
-
 from receiver import receiver
 from sender import sender
 from store import store
 
-load_dotenv()
 io_string = io.StringIO()
 logger = logging.getLogger("tweegramBot")
 logger.setLevel(logging.DEBUG)

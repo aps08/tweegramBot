@@ -4,10 +4,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
-from dotenv import load_dotenv
 from telethon.sync import TelegramClient
-
-load_dotenv()
 
 
 class TelegramOperation:
