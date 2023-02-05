@@ -23,7 +23,23 @@ A semi-configured respository, which help you convert your telegram messages to 
 
 ## Default Configuration and how to customize it
 ```
-print("Hello")
+class Default:
+    """
+    All default configuration.
+    """
+
+    USERNAME = os.environ.get("USERNAME")
+    FIRST_COMMENT: bool = False
+    COMMAND_CHECK: bool = True
+    FILE_NAME: str = "member_info.json"
+    PREFIX: str = "GTR_"
+    RETWEET_TEXT: str = "Retweeting for better reach. \U0001F603"
+    ADD_MESSAGE: str = """Thank you for joining us @{}.You have been added to our list with #{}."""
+    REMOVE_MESSAGE: str = "{} tweeter user has been removed."
+    ONLY_IMG_MESSAGE: str = "Opening \U0001F603"
+    RETWEET_MENTIONED: bool = True
+    SEND_LOG_ON_ERR: bool = True
+    logger.info("Configuration variables set.")
 ```
 <br>
 <p align="center">
