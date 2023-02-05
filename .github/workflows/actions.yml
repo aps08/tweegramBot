@@ -37,8 +37,8 @@ jobs:
 
       - name: Auto commit from GitHub Actions
         run: |
-          git config --local user.email "aps08@users.noreply.github.com"
-          git config --local user.name "aps08"
+          git config --local user.email "<GITHUB USERNAME>@users.noreply.github.com"
+          git config --local user.name "<GITHUB USERNAME>"
           git add -A
           git commit -m "Automated Commit"
           git push
