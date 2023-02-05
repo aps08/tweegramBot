@@ -10,18 +10,18 @@
 # tweegramBot
 A semi-configured respository, which help you convert your telegram messages to twitter tweets, also retweet the tweets tweeted by specific list of users.
 
-## Notes
+#### Notes
 * One time manual setup is required, to create the `*.session` file, for telegram operations.
 * It is recommended to not keep the repository in public, with the `*.session`, which was created in the first step, and `*.json` file which will be created when you add users to your list.
 
-## How to use
+#### How to use
 1. Get your API secrets for telegram from [here](https://my.telegram.org/apps).
 2. Get your API secrets for twitter from [here](https://developer.twitter.com/en/portal/dashboard).
 3. Fork this reposiotry, and uncomment the commented lines in [this](https://github.com/aps08/teltotwt/blob/main/.github/workfows/actions.yml) file.
 4. Create secrets for this repository. Total 8 secret key-value pair need to be created, 6 of them would be the API secrets, 1 would be telegram group/user name and 1 would be your github email. You can see the keys and instructions in [this](https://github.com/aps08/teltotwt/blob/main/src/config.py) file.
 5. Once the above steps are completed, this repo will run everyday at mid-night, and convert all your telegram messages into tweets.
 
-## Default Configuration and how to customize it
+#### Default Configuration and how to customize it
 ```python
 class Default:
     """
@@ -41,6 +41,8 @@ class Default:
     SEND_LOG_ON_ERR: bool = True
     logger.info("Configuration variables set.")
 ```
+#### Bad news
+
 <br>
 <p align="center">
  <a href="https://twitter.com/aps08__"><img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white"></a>
