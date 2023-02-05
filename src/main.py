@@ -3,33 +3,49 @@ from sender import sender
 from store import store
 
 
-class TweegramBot(receiver, sender, store):
-    def __init__(
-        self,
-        username: str,
-        first_comment: bool = False,
-        command_check: bool = False,
-        file_name: str = "member_info.json",
-        prefix: str = "GTR_",
-        retweet_text: str = "Retweeting for better reach. \U0001F603",
-        add_message: str = """Thank you for joining us @{}.You have been added to our list with #{}.Tag us with this token as hashtag.""",
-        remove_message: str = "{} tweeter user has been removed.",
-        only_img_mess: str = "Opening \U0001F603",
-        re_tweet_mentioned: bool = False,
-    ) -> None:
+class Config:
+    """
+    All default configuration.
+    """
+
+    USERNAME = "tech_referrals"
+    FIRST_COMMENT: bool = False
+    COMMAND_CHECK: bool = True
+    FILE_NAME: str = "member_info.json"
+    PREFIX: str = "GTR_"
+    RETWEET_TEXT: str = "Retweeting for better reach. \U0001F603"
+    ADD_MESSAGE: str = """Thank you for joining us @{}.You have been added to our list with #{}."""
+    REMOVE_MESSAGE: str = "{} tweeter user has been removed."
+    ONLY_IMG_MESSAGE: str = "Opening \U0001F603"
+    RETWEET_MENTIONED: bool = True
+
+
+class TweegramBot(receiver, sender, store, Config):
+    """
+    class is responsible for running the mail flow.
+    Inherited classes:
+        receiver: where twitter operations are performed
+        sender: where telegram operations are performed
+        store: where json operations are performed
+        Config: where all default configuration is set
+    """
+
+    def __init__(self) -> None:
+        """constructur"""
+        Config.__init__(self)
         receiver.__init__(
             self,
-            username=username,
-            first_comment=first_comment,
-            prefix=prefix,
-            retweet_text=retweet_text,
-            only_img_mess=only_img_mess,
+            username=self.USERNAME,
+            first_comment=self.FIRST_COMMENT,
+            prefix=self.PREFIX,
+            retweet_text=self.RETWEET_TEXT,
+            only_img_mess=self.ONLY_IMG_MESSAGE,
         )
-        sender.__init__(self, command_check=command_check)
-        store.__init__(self, file_name=file_name, prefix=prefix)
-        self.__add_message = add_message
-        self.__remove_message = remove_message
-        self.__re_tweet_mentioned = re_tweet_mentioned
+        sender.__init__(self, command_check=self.COMMAND_CHECK)
+        store.__init__(self, file_name=self.FILE_NAME, prefix=self.PREFIX)
+        self.__add_message = self.ADD_MESSAGE
+        self.__remove_message = self.REMOVE_MESSAGE
+        self.__re_tweet_mentioned = self.RETWEET_MENTIONED
 
     def command_execution(self, commands: list) -> None:
         """
@@ -41,10 +57,9 @@ class TweegramBot(receiver, sender, store):
             for command in commands:
                 if command.startswith("@add"):
                     user = command.split(" ")[-1]
-                    id = self.get_user_id(user_name=user)
-                    if id:
+                    if self.get_user_id(user_name=user):
                         token = self.create_token()
-                        user_added = self.add_user(user, token, id)
+                        user_added = self.add_user(user, token)
                         if user_added:
                             notification_tweet = self.__add_message.format(user, token)
                             self.convert_to_tweet([{"message": notification_tweet, "image": None}])
@@ -56,30 +71,37 @@ class TweegramBot(receiver, sender, store):
         except Exception as comm_exe_err:
             raise comm_exe_err
 
-    def retrieving(self) -> None:
+    def increase_reach(self) -> None:
+        """
+        Fectches mentioned tweets in last one hour,
+        and retweet with quote if token and user is in
+        the list.
+        """
+        if self.__re_tweet_mentioned:
+            filter_by_users = self.get_user_from()
+            items = self.get_mentioned_tweets(filter_by_users)
+            for author_data in items:
+                token = author_data.get("token", "")
+                tweet_id = author_data.get("tweet_id", "")
+                username = author_data.get("username", "")
+                if token and tweet_id and username:
+                    verified = self.verify(username, token)
+                    if verified:
+                        self.re_tweet(tweet_id)
+
+    def start(self) -> None:
+        """
+        Function is the entry point of the flow.
+        """
         commands, messages = self.get_messages()
         if self.check and commands:
             self.command_execution(commands)
         if messages:
             self.convert_to_tweet(messages)
-
-    def increase_reach(self) -> None:
-        if self.__re_tweet_mentioned:
-            items = self.get_mentioned_tweets()
-            for tweet_id, author_data in items.items():
-                author_id = author_data.get("author_id", "")
-                token = author_data.get("token", "")
-                username = author_data.get("username", "")
-                if author_id and token and username:
-                    verified = self.verify(username, token, author_id)
-                    if verified:
-                        self.re_tweet(tweet_id)
-
-    def start(self) -> None:
-        self.retrieving()
         self.increase_reach()
         self.remove_media()
 
 
-TweegramBot = TweegramBot(username="tech_referrals", command_check=True)
-TweegramBot.start()
+if __name__ == "__main__":
+    TweegramBot = TweegramBot()
+    TweegramBot.start()

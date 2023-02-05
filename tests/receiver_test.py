@@ -18,6 +18,10 @@ class Monolithic(unittest.TestCase):
     __username_2 = "code_writing"
     __user_id = 1617568257833304064
     __tweet_id = 1621823395666210816
+    __first_comment = False
+    __prefix = "GTR_"
+    __retweet_text = "Retweeting"
+    __only_img_mess = "Tweet"
 
     def test_remove_media(self):
         """
@@ -25,7 +29,9 @@ class Monolithic(unittest.TestCase):
         when it doesn't exists.
         """
         receiverobj = None
-        receiverobj = receiver(username=self.__username)
+        receiverobj = receiver(
+            self.__username, self.__first_comment, self.__prefix, self.__retweet_text, self.__only_img_mess
+        )
         removed = receiverobj.remove_media()
         self.assertEqual(removed, False)
 
@@ -35,7 +41,9 @@ class Monolithic(unittest.TestCase):
         when it exists.
         """
         receiverobj = None
-        receiverobj = receiver(username=self.__username)
+        receiverobj = receiver(
+            self.__username, self.__first_comment, self.__prefix, self.__retweet_text, self.__only_img_mess
+        )
         removed = receiverobj.remove_media()
         self.assertEqual(removed, True)
 
@@ -44,7 +52,9 @@ class Monolithic(unittest.TestCase):
         Test for getting id against username
         """
         receiverobj = None
-        receiverobj = receiver(username=self.__username)
+        receiverobj = receiver(
+            self.__username, self.__first_comment, self.__prefix, self.__retweet_text, self.__only_img_mess
+        )
         id = receiverobj.get_user_id(user_name=self.__username_2)
         self.assertEqual(id, self.__user_id)
 
@@ -53,7 +63,9 @@ class Monolithic(unittest.TestCase):
         Test for getting username against id
         """
         receiverobj = None
-        receiverobj = receiver(username=self.__username)
+        receiverobj = receiver(
+            self.__username, self.__first_comment, self.__prefix, self.__retweet_text, self.__only_img_mess
+        )
         user_name = receiverobj.get_user_id(author_id=self.__user_id)
         self.assertEqual(user_name, self.__username_2)
 
@@ -62,29 +74,22 @@ class Monolithic(unittest.TestCase):
         Test case to retweet
         """
         receiverobj = None
-        receiverobj = receiver(username=self.__username)
+        receiverobj = receiver(
+            self.__username, self.__first_comment, self.__prefix, self.__retweet_text, self.__only_img_mess
+        )
         retweeted = receiverobj.re_tweet(self.__tweet_id)
         self.assertEqual(retweeted, True)
 
     def test_mentions(self):
         """
-        Test case for checking mentioned tweets
+        Test case for checking mentioned tweets.
+        Create tweet before running this test.
         """
         receiverobj = None
-        receiverobj = receiver(username=self.__username)
+        receiverobj = receiver(
+            self.__username, self.__first_comment, self.__prefix, self.__retweet_text, self.__only_img_mess
+        )
         data = receiverobj.get_mentioned_tweets()
         data = data[self.__tweet_id]
         self.assertEqual(data["author_id"], self.__user_id)
         self.assertEqual(data["username"], self.__username_2)
-
-    def test_tweet_info(self):
-        """
-        Test case for checking tweet info
-        like authord id, name and token (if any)
-        """
-        receiverobj = None
-        receiverobj = receiver(username=self.__username)
-        data = receiverobj.tweet_info(self.__tweet_id)
-        self.assertEqual(data["author_id"], self.__user_id)
-        self.assertEqual(data["username"], self.__username_2)
-        self.assertEqual(data["token"], None)

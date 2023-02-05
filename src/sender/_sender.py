@@ -1,8 +1,3 @@
-"""
-All telegram operations are performed here.
-"""
-
-
 import os
 import time
 from datetime import datetime, timedelta, timezone
@@ -17,7 +12,7 @@ load_dotenv()
 class TelegramOperation:
     """
     Source operations
-    command_check (bool): default value False, pass True if you
+    command_check : default value False, pass True if you
                    want to use commands.
     """
 
@@ -54,13 +49,17 @@ class TelegramOperation:
         return filtered_commands, filtered_message
 
     def get_messages(
-        self, text: bool = True, image: bool = False, video: bool = False, gif: bool = False
+        self, text: bool = True, image: bool = True, video: bool = True, gif: bool = True
     ) -> Tuple[list, list]:
         """
         Gets all the messages which are posted
         after a perticular interval of time.
         You can also pass the keyword in order to
         filter messages.
+            text : default value True.
+            image : default value True.
+            video : default value True.
+            gif : default value True.
         """
         try:
             fetched_data = []

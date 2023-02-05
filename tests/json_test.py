@@ -16,9 +16,10 @@ class Monolithic(unittest.TestCase):
     """
 
     __name = "member_info.json"
-    __user = ("aps08__", "random_token", 13243534)
-    __newuser = ("hxlive", "random_token_two", 7544324)
-    __nouser = ("xccv", "random_token_two", 7544324)
+    __prefix = "GTR_"
+    __user = ("aps08__", "random_token")
+    __newuser = ("hxlive", "random_token_two")
+    __nouser = ("xccv", "random_token_two")
 
     def test_before_first_insert(self):
         """
@@ -32,7 +33,7 @@ class Monolithic(unittest.TestCase):
         Test for token format check.
         """
         fileobj = None
-        fileobj = store()
+        fileobj = store(self.__name, self.__prefix)
         token = fileobj.create_token()
         token = token.split("_")[-1]
         if re.search("^[A-Z0-9]{10}$", token):
@@ -46,8 +47,8 @@ class Monolithic(unittest.TestCase):
         Test case for new user
         """
         fileobj = None
-        fileobj = store()
-        added = fileobj.add_user(self.__user[0], self.__user[1], self.__user[2])
+        fileobj = store(self.__name, self.__prefix)
+        added = fileobj.add_user(self.__user[0], self.__user[1])
         self.assertEqual(added, True)
 
     def test_after_first_insert(self):
@@ -62,8 +63,8 @@ class Monolithic(unittest.TestCase):
         Test case of user exists and active
         """
         fileobj = None
-        fileobj = store()
-        added = fileobj.add_user(self.__user[0], self.__user[1], self.__user[2])
+        fileobj = store(self.__name, self.__prefix)
+        added = fileobj.add_user(self.__user[0], self.__user[1])
         self.assertEqual(added, False)
 
     def test_add_another_user(self):
@@ -71,8 +72,8 @@ class Monolithic(unittest.TestCase):
         Add second user.
         """
         fileobj = None
-        fileobj = store()
-        added = fileobj.add_user(self.__newuser[0], self.__newuser[1], self.__newuser[2])
+        fileobj = store(self.__name, self.__prefix)
+        added = fileobj.add_user(self.__newuser[0], self.__newuser[1])
         self.assertEqual(added, True)
 
     def test_remove_user(self):
@@ -80,7 +81,7 @@ class Monolithic(unittest.TestCase):
         Test case of changing activity of user
         """
         fileobj = None
-        fileobj = store()
+        fileobj = store(self.__name, self.__prefix)
         removed = fileobj.remove_user(self.__user[0])
         self.assertEqual(removed, True)
 
@@ -89,7 +90,7 @@ class Monolithic(unittest.TestCase):
         Test case when user doesn't in record
         """
         fileobj = None
-        fileobj = store()
+        fileobj = store(self.__name, self.__prefix)
         exists, active = fileobj.check_user_exists("fireOx")
         self.assertEqual(exists, False)
         self.assertEqual(active, False)
@@ -99,7 +100,7 @@ class Monolithic(unittest.TestCase):
         Test case to check unactive user
         """
         fileobj = None
-        fileobj = store()
+        fileobj = store(self.__name, self.__prefix)
         exists, active = fileobj.check_user_exists(self.__user[0])
         self.assertEqual(exists, True)
         self.assertEqual(active, False)
@@ -109,8 +110,8 @@ class Monolithic(unittest.TestCase):
         Verify for user which doesn't exists
         """
         fileobj = None
-        fileobj = store()
-        verified = fileobj.verify(self.__nouser[0], self.__nouser[1], self.__nouser[2])
+        fileobj = store(self.__name, self.__prefix)
+        verified = fileobj.verify(self.__nouser[0], self.__nouser[1])
         self.assertEqual(verified, False)
 
     def test_remove_user_no_user(self):
@@ -118,7 +119,7 @@ class Monolithic(unittest.TestCase):
         Test case for removing user which doesn't exists
         """
         fileobj = None
-        fileobj = store()
+        fileobj = store(self.__name, self.__prefix)
         removed = fileobj.remove_user("xccwewd")
         self.assertEqual(removed, False)
 
@@ -127,7 +128,7 @@ class Monolithic(unittest.TestCase):
         Test case of changing activity of user
         """
         fileobj = None
-        fileobj = store()
+        fileobj = store(self.__name, self.__prefix)
         removed = fileobj.remove_user(self.__name[0])
         self.assertEqual(removed, False)
 
@@ -136,6 +137,6 @@ class Monolithic(unittest.TestCase):
         Verify for user, id and token
         """
         fileobj = None
-        fileobj = store()
-        verified = fileobj.verify(self.__newuser[0], self.__newuser[1], self.__newuser[2])
+        fileobj = store(self.__name, self.__prefix)
+        verified = fileobj.verify(self.__newuser[0], self.__newuser[1])
         self.assertEqual(verified, True)

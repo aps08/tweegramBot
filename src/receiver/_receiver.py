@@ -1,7 +1,3 @@
-"""
-All twitter operations are performed here
-without command features.
-"""
 import os
 import re
 import shutil
@@ -18,12 +14,14 @@ load_dotenv()
 
 class Creator:
     """
-    Creates required objects.
+    Creates required objects for twitter API calls.
     """
 
     def get_client(self) -> Client:
         """
-        Creates and return client object
+        Public function to create and return Client object.
+        return:
+            client: twitter client object.
         """
         try:
             client = tweepy.Client(
@@ -39,7 +37,9 @@ class Creator:
 
     def get_oauth(self) -> API:
         """
-        Creates and return oauth api handler
+        Public function to create and return OAuth object.
+        return:
+            auth: twitter OAuth object.
         """
         try:
             auth = tweepy.OAuthHandler(
@@ -57,14 +57,15 @@ class Creator:
 class TwitterOperations(Creator):
     """
     Destination operation.
-    first_comment (bool): default value False, change it to true,
-                    in order to add link in first comment. When
-                    this is True, and the text passed with the image
-                    is a then it will be pasted in first comment.
-    username (str): twitter username of the bot
-    prefix (str): prefix to identify token from the hashtags
-    retweet_text (str): Quote for retweet. Can't retweet with without
+    first_comment : default value False, change it to True.
+                    It is mandatory to pass only link as caption
+                    of an image if True. Otherwise the link
+                    will not be tweeted in first comment.
+    username : twitter username of the bot
+    prefix : prefix to identify token from the hashtags
+    retweet_text : Quote for retweet. Can't retweet with without
                     quote.
+    only_img_mess : Text when the tweet is only image.
     """
 
     def __init__(self, username: str, first_comment: bool, prefix: str, retweet_text: str, only_img_mess: str):
@@ -75,13 +76,14 @@ class TwitterOperations(Creator):
         self.__first_comment = first_comment
         self.__username = username
         self.__retweet_text = retweet_text
-        self.__prefic = prefix
+        self.__prefix = prefix
         self.__only_img_mess = only_img_mess
 
     def remove_media(self) -> bool:
         """
         Fully remove the media folder.
-        removed: True if folder is removed.
+        return:
+            removed: True if folder is removed.
         """
         try:
             removed = False
@@ -98,6 +100,9 @@ class TwitterOperations(Creator):
         """
         Iterate list items and converts
         them into tweet.
+        argument:
+            items:  list of dictionaries, where each
+            dictionary contain message and image key.
         """
         try:
             for item in items:
@@ -124,76 +129,55 @@ class TwitterOperations(Creator):
         except Exception as send_tweet_err:
             raise send_tweet_err
 
-    def get_user_id(self, user_name: str = "", author_id: int = 0) -> int | str:
+    def get_user_id(self, user_name: str) -> bool:
         """
         Checks if user_name exists in twitter or not.
         argument:
-            user_name: id to be checked against, default value ""
-            author_id: username to be checked against, default value 0
+            user_name: username againt which check is needed.
         return:
             result: id or username as per input
         """
         try:
-            result = None
-            key = None
-            if user_name:
-                user_data = self.__client.get_user(username=user_name)
-                key = "id"
-            elif author_id:
-                user_data = self.__client.get_user(id=author_id)
-                key = "username"
+            result = False
+            user_data = self.__client.get_user(username=user_name)
             if user_data.data:
-                user_data_dict = dict(user_data.data)
-            result = user_data_dict.get(key, None)
+                result = True
         except Exception as user_err:
             raise user_err
         return result
 
-    def tweet_info(self, tweet_id: int) -> dict:
-        """
-        Get information about a tweet id
-        return:
-            author_id: id of user whose has written the tweet
-            token: token used in the tweet
-            username: twitter username of the user
-        """
-        try:
-            author_id, token, username = None, None, None
-            tweets_data = self.__client.get_tweet(tweet_id, expansions=["author_id"])
-            if tweets_data.data:
-                tweet_data_dict = dict(tweets_data.data)
-                author_id = tweet_data_dict.get("author_id", "")
-                text = tweet_data_dict.get("text", "")
-                hashlist = re.findall("#(\w+)", text)
-                for hash in hashlist:
-                    if hash.startswith(self.__prefic):
-                        token = hash.split("_")[-1]
-                username = self.get_user_id(author_id=author_id)
-        except Exception as tweet_info_err:
-            raise tweet_info_err
-        return {"author_id": author_id, "token": token, "username": username}
-
-    def get_mentioned_tweets(self) -> dict:
+    def get_mentioned_tweets(self, users: str) -> list:
         """
         Gets tweet where the bot is mentioned.
+        argument:
+            users: filter for from keyword in search
+        return:
+            tweet_data: list of dictionary with tweet_id and token
         """
         try:
-            tweet_data = dict()
+            tweet_data = list()
             date_time = datetime.now(timezone.utc) - timedelta(hours=1.0)
             date_time_string = date_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+            print(f"(hiring OR opening) ({users}) (@{self.__username}) -is:retweet -is:reply")
             tweets_data = self.__client.search_recent_tweets(
-                query=f"(hiring OR opening) (@{self.__username}) -is:retweet -is:reply",
+                query=f"(hiring OR opening) ({users}) (@{self.__username}) -is:retweet -is:reply",
+                expansions=["entities.mentions.username", "author_id"],
                 max_results=100,
                 start_time=date_time_string,
             )
-            if tweets_data.data:
-                for item in tweets_data.data:
-                    item = dict(item)
-                    tweet_id = item.get("id", 0)
-                    tweet_info = self.tweet_info(tweet_id)
-                    if tweet_info.get("token", ""):
-                        data = {tweet_id: self.tweet_info(tweet_id)}
-                        tweet_data.update(data)
+            if tweets_data.data and tweets_data.includes:
+                for tweet, user in zip(tweets_data.data, tweets_data.includes["users"]):
+                    tweet = dict(tweet)
+                    user = dict(user)
+                    tweet_id = tweet.get("id", 0)
+                    text = tweet.get("text", "")
+                    username = user.get("username", "")
+                    if tweet_id and text and username:
+                        hash_list = re.findall("#(\w+)", text)
+                        hash_token = [hash_token for hash_token in hash_list if hash_token.startswith(self.__prefix)]
+                        if hash_token:
+                            hash_token = hash_token[0].split("_")[-1]
+                            tweet_data.append({"tweet_id": tweet_id, "token": hash_token, "username": username})
         except Exception as mention_err:
             raise mention_err
         return tweet_data
@@ -205,6 +189,4 @@ class TwitterOperations(Creator):
         argument:
             tweet_id: tweet id to be tweeted.
         """
-        retweeted = False
         res = self.__client.create_tweet(text=self.__retweet_text, quote_tweet_id=tweet_id)
-        return not retweeted

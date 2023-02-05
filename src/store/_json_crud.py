@@ -1,8 +1,3 @@
-"""
-This file is reponsible for performing insert,
-delete and remove in json file. Also responsible
-for storing stats.
-"""
 import json
 import os
 import random
@@ -14,19 +9,8 @@ class JsonOperation:
     """
     Class for json operations are performed in the
     class. Functions implemented:
-        read_record: for reading the content of the json.
-        read_record: for writing the given content in the file.
-        create_token: creates token of 10 chars, and contains
-                    upper case alphabets and digits.
-        add_user: adds user to the json, if it's first time
-                insert, then creates the json file.
-        remove_user: removes or change the activity of a user
-                to false.
-        check_user_exists: checks if user already exists or not.
-                        Also checks if that user is active.
-        verify: verifies if the user is present and the token used
-                is correct or not.
-
+        file_name: for writing the users in the file.
+        prefix: prefix for extracting token from json.
     """
 
     def __init__(self, file_name: str, prefix: str) -> None:
@@ -54,8 +38,8 @@ class JsonOperation:
 
     def create_token(self) -> str:
         """
-        creates token,and makes sure the token
-        is not a duplicate
+        creates token, and makes sure the token
+        is not a duplicate.
         return:
             token: token created
         """
@@ -74,14 +58,13 @@ class JsonOperation:
             raise token_err
         return self.__prefix + token
 
-    def add_user(self, user_name: str, token: str, id: int) -> bool:
+    def add_user(self, user_name: str, token: str) -> bool:
         """
         Add user to the list with the token
         if not existing.
         argument:
             user_name: user to be added
             token: token for verification
-            id: twitter id of the username
         return:
             user_added: True if user is added
                         successfully
@@ -92,7 +75,6 @@ class JsonOperation:
             data = {
                 user_name: {
                     "user_name": user_name,
-                    "id": id,
                     "token": token.replace(self.__prefix, ""),
                     "active": True,
                 }
@@ -146,7 +128,7 @@ class JsonOperation:
         Removes the user from the json file.
         argument:
             username: against which the operation
-            should be performed
+            should be performed.
         return:
             user_removed: True if user is removed.
         """
@@ -163,11 +145,30 @@ class JsonOperation:
             raise remove_err
         return user_removed
 
-    def verify(self, user_name: str, token: str, ver_id: int) -> bool:
+    def get_user_from(self):
+        """
+        Creating filter from the users in the
+        json
+        return:
+            users_filter: filter string
+        """
+        try:
+            users_filter = None
+            keys = []
+            if os.path.isfile(self.__name):
+                data = self.__read_record()
+                for key, value in data.items():
+                    if value.get("active", False):
+                        keys.append("from:" + key)
+                users_filter = " OR ".join(keys)
+        except Exception as user_from_filter_err:
+            raise user_from_filter_err
+        return users_filter
+
+    def verify(self, user_name: str, token: str) -> bool:
         """
         Verifies the tweet for retweet.
         argument:
-            id: tweeter id of the user.
             user_name: user
             token: token to verify for retweet
         """
@@ -178,11 +179,10 @@ class JsonOperation:
                 data = self.__read_record()
                 data = data.get(user_name, "")
                 if data:
-                    user_id = data.get("id", "")
                     user_token = data.get("token", "")
                     user_user_name = data.get("user_name", "")
                     active = data.get("active", "")
-                    if user_id == ver_id and user_token == token and user_user_name == user_name and active:
+                    if user_token == token and user_user_name == user_name and active:
                         verify = True
         except Exception as verify_err:
             raise verify_err
