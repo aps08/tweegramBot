@@ -63,7 +63,7 @@ SEND_LOG_ON_ERR | Default `True`, when False you won't receive the logs on teleg
 ### Bad news
 This project was in progress from past few weeks, so I am releasing it. The decision by twitter and API cost might affect the future of this project. Read [here](https://twitter.com/TwitterDev/status/1621026986784337922?t=AYvhqkC0gqApLV-Qw19hlA&s=19)
 
-#### If you liked something about this repository, do give it a 🌟. It will motivate me come up with more such project. You can reach out to me on my social media given below.
+<p align="center" style="text"><strong>If you liked something about this repository, do give it a 🌟. It will motivate me come up with more such project. You can reach out to me on my social media given below.</strong></p>
 
 <p align="center">
  <a href="https://twitter.com/aps08__"><img src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white"></a>
