@@ -24,10 +24,10 @@ class Default:
     USERNAME = os.environ.get("USERNAME")
     FIRST_COMMENT: bool = False
     COMMAND_CHECK: bool = True
-    FILE_NAME: str = "member_info.json"
-    PREFIX: str = "GTR_"
+    FILE_NAME: str = "member_info"
+    PREFIX: str = "GTR"
     RETWEET_TEXT: str = "Retweeting for better reach. \U0001F603"
-    ADD_MESSAGE: str = """Thank you for joining us @{}.You have been added to our list with #{}."""
+    ADD_MESSAGE: str = """Thank you for joining us {}.You have been added to our list with #{}."""
     REMOVE_MESSAGE: str = "{} tweeter user has been removed."
     ONLY_IMG_MESSAGE: str = "Opening \U0001F603"
     RETWEET_MENTIONED: bool = True
@@ -79,7 +79,7 @@ class TweegramBot(receiver, sender, store, Default):
                         user_added = self.add_user(user, token)
                         if user_added:
                             logger.info("Added user, sending notification on twitter")
-                            notification_tweet = self.__add_message.format(user, token)
+                            notification_tweet = self.__add_message.format("@" + user, token)
                             self.convert_to_tweet([{"message": notification_tweet, "image": None}])
                 if command.startswith("@remove"):
                     user = command.split(" ")[-1]

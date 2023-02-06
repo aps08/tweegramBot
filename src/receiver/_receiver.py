@@ -74,7 +74,7 @@ class TwitterOperations(Creator):
         self.__first_comment = first_comment
         self.__username = username
         self.__retweet_text = retweet_text
-        self.__prefix = prefix
+        self.__prefix = prefix + "_"
         self.__only_img_mess = only_img_mess
         self.r_error = False
         self.__logger = logging.getLogger("tweegramBot")

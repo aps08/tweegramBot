@@ -15,8 +15,8 @@ class JsonOperation:
     """
 
     def __init__(self, file_name: str, prefix: str) -> None:
-        self.__name = file_name
-        self.__prefix = prefix
+        self.__name = file_name + ".json"
+        self.__prefix = prefix + "_"
         self.st_error = False
         self.__logger = logging.getLogger("tweegramBot")
         self.__logger.info("store module is initialized.")
