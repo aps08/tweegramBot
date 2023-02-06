@@ -8,7 +8,7 @@
 </p>
 
 # tweegramBot
-A semi-configured respository, which help you convert your telegram messages to twitter tweets, also retweet the tweets tweeted by specific list of users.
+TweegramBot is a repository made using python which integrates with twitter and telegram APIs, and helps you convert telegram messages to tweet using github action on hourly basis.
 
 ### How to use
 * Fork this repository.
