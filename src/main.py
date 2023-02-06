@@ -1,108 +1,144 @@
-"""
-Module is responsible for converting 
-telegram messages to twitter tweets.
-"""
-
+import io
+import logging
 import os
-import shutil
-from datetime import datetime, timedelta, timezone
 
-import tweepy
-from telethon.sync import TelegramClient
+from receiver import receiver
+from sender import sender
+from store import store
 
-import config
+io_string = io.StringIO()
+logger = logging.getLogger("tweegramBot")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(io_string)
+handler.setFormatter(logging.Formatter("%(asctime)s-%(name)s-%(levelname)s-%(message)s"))
+if logger.hasHandlers():
+    logger.handlers.clear()
+logger.addHandler(handler)
 
 
-class TelegramToTweet:
+class Default:
     """
-    This class is responsible for reading text
-    from telegram group and converting it to twitter
-    tweets.
+    All default configuration.
     """
 
-    def __get_messages(self) -> list:
+    USERNAME = os.environ.get("USERNAME")
+    FIRST_COMMENT: bool = False
+    COMMAND_CHECK: bool = True
+    FILE_NAME: str = "member_info"
+    PREFIX: str = "GTR"
+    RETWEET_TEXT: str = "Retweeting for better reach. \U0001F603"
+    ADD_MESSAGE: str = """Thank you for joining us {}.You have been added to our list with #{}."""
+    REMOVE_MESSAGE: str = "{} tweeter user has been removed."
+    ONLY_IMG_MESSAGE: str = "Opening \U0001F603"
+    RETWEET_MENTIONED: bool = True
+    SEND_LOG_ON_ERR: bool = True
+    logger.info("Configuration variables set.")
+
+
+class TweegramBot(receiver, sender, store, Default):
+    """
+    class is responsible for running the mail flow.
+    Inherited classes:
+        receiver: where twitter operations are performed
+        sender: where telegram operations are performed
+        store: where json operations are performed
+        Config: where all default configuration is set
+    """
+
+    def __init__(self) -> None:
+        """constructur"""
+        Default.__init__(self)
+        receiver.__init__(
+            self,
+            username=self.USERNAME,
+            first_comment=self.FIRST_COMMENT,
+            prefix=self.PREFIX,
+            retweet_text=self.RETWEET_TEXT,
+            only_img_mess=self.ONLY_IMG_MESSAGE,
+        )
+        sender.__init__(self, command_check=self.COMMAND_CHECK)
+        store.__init__(self, file_name=self.FILE_NAME, prefix=self.PREFIX)
+        self.__add_message = self.ADD_MESSAGE
+        self.__remove_message = self.REMOVE_MESSAGE
+        self.__re_tweet_mentioned = self.RETWEET_MENTIONED
+        logger.info("Main class initialized")
+
+    def command_execution(self, commands: list) -> None:
         """
-        Downloads media and texts from telegram group
-        for past 1 day.
+        Executes command given in the list
+        argument:
+            commands: list of commands
         """
-        items = []
-        date_time = datetime.now(timezone.utc) - timedelta(days=1.0)
         try:
-            with TelegramClient("aps08", config.TEL_API_ID, config.TEL_API_HASH) as client:
-                media_count = 0
-                for message in client.iter_messages(config.TEL_GROUP):
-                    export_path = f"src/media/{media_count}"
-                    if message.date > date_time:
-                        temp_dict = {}
-                        if message.photo:
-                            path = client.download_media(message, export_path)
-                            temp_dict["media_path"] = path
-                            temp_dict["message"] = message.text
+            logger.info("running %s", self.command_check.__name__)
+            for command in commands:
+                if command.startswith("@add"):
+                    user = command.split(" ")[-1]
+                    if self.get_user_id(user_name=user):
+                        token = self.create_token()
+                        user_added = self.add_user(user, token)
+                        if user_added:
+                            logger.info("Added user, sending notification on twitter")
+                            notification_tweet = self.__add_message.format("@" + user, token)
+                            self.convert_to_tweet([{"message": notification_tweet, "image": None}])
+                if command.startswith("@remove"):
+                    user = command.split(" ")[-1]
+                    if self.remove_user(user):
+                        telegram_notification = self.__remove_message.format(user)
+                        logger.info("Removed user, sending notification on telegram")
+                        self.send_message(text=telegram_notification)
+        except Exception as comm_exe_err:
+            logger.error("Error in %s %s", self.command_check.__name__, comm_exe_err)
+            raise comm_exe_err
+
+    def increase_reach(self) -> None:
+        """
+        Fectches mentioned tweets in last one hour,
+        and retweet with quote if token and user is in
+        the list.
+        """
+        try:
+            logger.info("running %s", self.increase_reach.__name__)
+            if self.__re_tweet_mentioned:
+                filter_by_users = self.get_user_from()
+                items = self.get_mentioned_tweets(filter_by_users)
+                for author_data in items:
+                    token = author_data.get("token", "")
+                    tweet_id = author_data.get("tweet_id", "")
+                    username = author_data.get("username", "")
+                    if token and tweet_id and username:
+                        verified = self.verify(username, token)
+                        if verified:
+                            logger.info("retweeting verified tweet.")
+                            self.re_tweet(tweet_id)
                         else:
-                            temp_dict["message"] = message.text
-                        items.append(temp_dict)
-                        media_count += 1
-        except Exception as down_err:
-            raise down_err
-        return items
-
-    def __send_tweet(self, items: dict) -> None:
-        """
-        Iterate dictionary items and converts
-        them into tweet.
-        """
-        try:
-            client = tweepy.Client(
-                consumer_key=config.TWT_API_KEY,
-                consumer_secret=config.TWT_API_SECRET,
-                access_token=config.TWT_ACCESS_TOKEN,
-                access_token_secret=config.TWT_ACCESS_TOKEN_SECRET,
-            )
-            auth = tweepy.OAuthHandler(
-                consumer_key=config.TWT_API_KEY,
-                consumer_secret=config.TWT_API_SECRET,
-                access_token=config.TWT_ACCESS_TOKEN,
-                access_token_secret=config.TWT_ACCESS_TOKEN_SECRET,
-            )
-            twitter_api = tweepy.API(auth)
-            if items:
-                for item in items:
-                    message = item.get("message", "")
-                    media_path = item.get("media_path", "")
-                    if message and media_path:
-                        media = twitter_api.media_upload(media_path)
-                        res = client.create_tweet(text=message, media_ids=[media.media_id])
-                    elif message and not media_path:
-                        res = client.create_tweet(text=message)
-                    elif not message and media_path:
-                        media = twitter_api.media_upload(media_path)
-                        res = client.create_tweet(text="Opportunity", media_ids=[media.media_id])
-        except Exception as send_err:
-            raise send_err
-
-    def __delete_media_dir(self) -> None:
-        """
-        Deletes media directory after use.
-        """
-        try:
-            current_dir = os.getcwd()
-            path = os.path.join(current_dir, "src/media")
-            shutil.rmtree(path)
-        except Exception as del_err:
-            raise del_err
+                            logger.warning("verification failed, can't retweet.")
+                    else:
+                        logger.warning("one of the value in token,tweet_id,username is not foound.")
+        except Exception as reach_err:
+            logger.error("Error in %s %s", self.increase_reach.__name__, reach_err)
+            raise reach_err
 
     def start(self) -> None:
         """
-        Trigger the class from here.
+        Function is the entry point of the flow.
         """
         try:
-            items = self.__get_messages()
-            self.__send_tweet(items=items)
-            self.__delete_media_dir()
+            logger.info("running %s", self.start.__name__)
+            commands, messages = self.get_messages()
+            if self.check and commands:
+                self.command_execution(commands)
+            if messages:
+                self.convert_to_tweet(messages)
+            self.increase_reach()
+            self.remove_media()
         except Exception as start_err:
-            raise start_err
+            logger.error("Error in %s %s", self.start.__name__, start_err)
+        finally:
+            if self.SEND_LOG_ON_ERR and (self.st_error or self.s_error or self.r_error):
+                self.send_message(text=io_string.getvalue())
 
 
 if __name__ == "__main__":
-    TelegramToTweet = TelegramToTweet()
-    TelegramToTweet.start()
+    TweegramBot = TweegramBot()
+    TweegramBot.start()

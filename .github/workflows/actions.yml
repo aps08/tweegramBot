@@ -1,42 +1,44 @@
-name: teltotwt
+name: tweegramBot in Action
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "0 * * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 3
     steps:
-      - name: checkout repository
+      - name: Checkout tweegramBot repository
         uses: actions/checkout@v3
 
-      - name: setup python
+      - name: Setting python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: install python packages
+      - name: Installing python packages
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: execution
+
+      - name: Setting environmental variables and executing
         env:
-          TEL_API_ID: ${{ secrets.TEL_API_ID }}
-          TEL_API_HASH: ${{ secrets.TEL_API_HASH }}
-          TEL_GROUP: ${{ secrets.TEL_GROUP }}
-          TWT_API_KEY: ${{ secrets.TWT_API_KEY }}
-          TWT_API_SECRET: ${{ secrets.TWT_API_SECRET }}
-          TWT_ACCESS_TOKEN: ${{ secrets.TWT_ACCESS_TOKEN }}
-          TWT_ACCESS_TOKEN_SECRET: ${{ secrets.TWT_ACCESS_TOKEN_SECRET }}
+          ENTITY: ${{ secrets.ENTITY }}
+          USERNAME: ${{ secrets.USERNAME }}
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         run: python src/main.py
 
-      - name: auto commit
+      - name: Auto commit from GitHub Actions
         run: |
-          git config --local user.email "${{ secrets.EMAIL }}"
-          git config --local user.name "aps08"
-          git add .
-          git commit -m "Commit from Github Actions"
-          git push -f origin main
+          git config --local user.email "<GITHUB USERNAME>@users.noreply.github.com"
+          git config --local user.name "<GITHUB USERNAME>"
+          git add -A
+          git commit -m "Automated Commit"
+          git push
